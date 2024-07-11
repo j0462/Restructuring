@@ -5,11 +5,14 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
-public class User {
+public class Columns {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToMany(mappedBy = "user")
+    @Column(nullable = false)
+    private String status;
+
+    @OneToMany(mappedBy = "column")
     private List<Card> cards;
 }
