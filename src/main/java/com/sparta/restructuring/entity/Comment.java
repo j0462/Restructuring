@@ -1,7 +1,9 @@
 package com.sparta.restructuring.entity;
 
+import com.sparta.restructuring.base.Timestamped;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -9,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "comment")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class Comment {
+public class Comment extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -18,10 +20,11 @@ public class Comment {
     private String content;
 
     @ManyToOne
-    private Columns column;
+    private Card card;
 
-    public Comment(String content, Columns column) {
+    @Builder
+    public Comment(String content, Card card) {
         this.content = content;
-        this.column = column;
+        this.card = card;
     }
 }
