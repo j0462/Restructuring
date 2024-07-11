@@ -33,8 +33,9 @@ public class Card{
     @ManyToOne
     private Columns column;
 
-    @OneToMany(mappedBy = "comment")
+    @OneToMany(mappedBy = "card")
     private List<Comment> comments;
+
 
     @Builder
     public Card(String title, String content, LocalDate date, User user, Columns column) {
