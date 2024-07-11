@@ -1,5 +1,7 @@
 package com.sparta.restructuring.service;
 
+import static com.sparta.restructuring.security.JwtProvider.AUTHORIZATION_HEADER;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -10,6 +12,8 @@ import com.sparta.restructuring.entity.User;
 import com.sparta.restructuring.entity.UserRole;
 import com.sparta.restructuring.repository.UserRepository;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 
@@ -44,6 +48,15 @@ public class UserService {
 		request.setPassword(encodedPassword);
 		User user = new User(request, role);
 		return userRepository.save(user);
+	}
+
+	public Long logout(User user, HttpServletResponse response) {
+		response.setHeader(AUTHORIZATION_HEADER, "");
+		Long userId = user.getId();
+		user.updateRefreshToken(null);
+		userRepository.save(user);
+
+		return userId;
 	}
 
 
