@@ -55,14 +55,14 @@ public class JwtProvider {
 	/**
 	 * Access 토큰 생성
 	 */
-	public String createAccessToken(String userName, UserRole role) {
+	public String createAccessToken(String accountId, UserRole role) {
 		Date date = new Date();
 
 		// Access 토큰 만료기간
 		long accessTokenTime = 10 * 1000L; // 10초
 
 		return BEARER_PREFIX + Jwts.builder()
-			.setSubject(userName)
+			.setSubject(accountId)
 			.claim(AUTHORIZATION_KEY, role)
 			.setExpiration(new Date(date.getTime() + accessTokenTime))
 			.setIssuedAt(date) // 발급일
@@ -73,11 +73,11 @@ public class JwtProvider {
 	/**
 	 * Refresh 토큰 생성
 	 */
-	public String createRefreshToken(String userName, UserRole role) {
+	public String createRefreshToken(String accountId, UserRole role) {
 		Date date = new Date();
 
 		return BEARER_PREFIX + Jwts.builder()
-			.setSubject(userName)
+			.setSubject(accountId)
 			.claim(AUTHORIZATION_KEY, role)
 			.setExpiration(new Date(date.getTime() + REFRESH_TOKEN_TIME))
 			.setIssuedAt(date) // 발급일
@@ -173,7 +173,7 @@ public class JwtProvider {
 	/**
 	 * 토큰에서 userName 가져오기
 	 */
-	public String getUserNameFromToken(String token) {
+	public String getAccountIdFromToken(String token) {
 		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
 	}
 

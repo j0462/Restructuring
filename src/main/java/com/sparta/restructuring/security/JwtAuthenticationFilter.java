@@ -65,11 +65,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	@Override
 	protected void successfulAuthentication(HttpServletRequest req, HttpServletResponse res, FilterChain chain, Authentication authResult) throws IOException {
 		log.info("인증 성공 및 JWT 생성");
-		String username = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
+		String accountId = ((UserDetailsImpl) authResult.getPrincipal()).getUsername();
 		UserRole role = ((UserDetailsImpl) authResult.getPrincipal()).getUser().getRole();
 
-		String accessToken = jwtProvider.createAccessToken(username, role);
-		String refreshToken = jwtProvider.createRefreshToken(username, role);
+		String accessToken = jwtProvider.createAccessToken(accountId, role);
+		String refreshToken = jwtProvider.createRefreshToken(accountId, role);
 
 		// 헤더에 액세스 토큰 추가
 		res.addHeader(JwtProvider.AUTHORIZATION_HEADER, accessToken);
@@ -82,7 +82,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 		user.updateRefreshToken(refreshToken);
 		userRepository.save(user);
 
-		log.info("로그인 성공 : {}", username);
+		log.info("로그인 성공 : {}", accountId);
 
 		// 응답 메시지 작성
 		res.setStatus(SC_OK);

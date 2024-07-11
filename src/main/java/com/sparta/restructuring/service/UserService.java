@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.sparta.restructuring.dto.LoginRequest;
 import com.sparta.restructuring.dto.SignupRequest;
 import com.sparta.restructuring.entity.User;
 import com.sparta.restructuring.entity.UserRole;
@@ -44,4 +45,6 @@ public class UserService {
 		User user = new User(request, role);
 		return userRepository.save(user);
 	}
+
+
 }

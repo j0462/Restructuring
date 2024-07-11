@@ -40,14 +40,14 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 		if (StringUtils.hasText(accessToken)) {
 			if (jwtProvider.validateAccessToken(accessToken)) {
 				log.info("액세스 토큰 검증 성공");
-				setAuthentication(jwtProvider.getUserNameFromToken(accessToken));
+				setAuthentication(jwtProvider.getAccountIdFromToken(accessToken));
 
 			} else if (StringUtils.hasText(refreshToken)) {
 				log.info("액세스 토큰 만료");
 
 				if (jwtProvider.validateRefreshToken(refreshToken)) {
 					log.info("리프레시 토큰 검증 성공 & 새로운 액세스 토큰 발급");
-					String username = jwtProvider.getUserNameFromToken(refreshToken);
+					String username = jwtProvider.getAccountIdFromToken(	refreshToken);
 					UserRole role = jwtProvider.getRoleFromToken(refreshToken);
 
 					String newAccessToken = jwtProvider.createAccessToken(username, role);

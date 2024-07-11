@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class UserDetailsImpl implements UserDetails {
 
-	private final User user;
+	private User user;
 
 	@Override
 	public String getPassword() {
@@ -24,11 +24,15 @@ public class UserDetailsImpl implements UserDetails {
 
 	@Override
 	public String getUsername() {
-		return user.getUserName();
+		return user.getAccountId();
 	}
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
 		return List.of();
+	}
+
+	public UserDetailsImpl(User newUser) {
+		user = newUser;
 	}
 }
