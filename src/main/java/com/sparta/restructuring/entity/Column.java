@@ -1,4 +1,4 @@
 package com.sparta.restructuring.entity;
 
-public class Card {
+public class Column {
 }
