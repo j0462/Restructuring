@@ -47,13 +47,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 				if (jwtProvider.validateRefreshToken(refreshToken)) {
 					log.info("리프레시 토큰 검증 성공 & 새로운 액세스 토큰 발급");
-					String username = jwtProvider.getAccountIdFromToken(	refreshToken);
+					String accountId = jwtProvider.getAccountIdFromToken(refreshToken);
 					UserRole role = jwtProvider.getRoleFromToken(refreshToken);
 
-					String newAccessToken = jwtProvider.createAccessToken(username, role);
+					String newAccessToken = jwtProvider.createAccessToken(accountId, role);
 
 					jwtProvider.setHeaderAccessToken(res, newAccessToken);
-					setAuthentication(username);
+					setAuthentication(accountId);
 
 				} else {
 					log.info("리프레시 토큰 검증 실패");
@@ -68,17 +68,17 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	/**
 	 * 인증 처리
 	 */
-	public void setAuthentication(String username) {
+	public void setAuthentication(String accountId) {
 		SecurityContext context = SecurityContextHolder.createEmptyContext();
-		context.setAuthentication(createAuthentication(username));
+		context.setAuthentication(createAuthentication(accountId));
 		SecurityContextHolder.setContext(context);
 	}
 
 	/**
 	 * 인증 객체 생성
 	 */
-	private Authentication createAuthentication(String username) {
-		UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+	private Authentication createAuthentication(String accountId) {
+		UserDetails userDetails = userDetailsService.loadUserByUsername(accountId);
 		return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 	}
 
