@@ -1,9 +1,11 @@
 package com.sparta.restructuring.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +25,11 @@ public class Board {
 
     private String boardExplain;
 
-    private List<String> invitedUsers = new ArrayList<>();
+    @OneToMany
+    private List<UserBoard> invitedUsers = new ArrayList<>();
+
+    @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<UserBoard> userBoardList = new ArrayList<>();
 
     @Builder
     public Board(String boardName, String boardExplain) {
@@ -39,7 +45,8 @@ public class Board {
         this.boardExplain = boardExplain;
     }
 
-    public void addInvitedUser(String username) {
-        invitedUsers.add(username);
+    public void setInvitedUsers(List<UserBoard> invitedUsers){
+        this.userBoardList = invitedUsers;
     }
+
 }
