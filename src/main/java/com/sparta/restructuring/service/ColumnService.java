@@ -31,7 +31,7 @@ public class ColumnService {
     private final UserBoardRepository userBoardRepository;
 
     public void createColumn(ColumnCreateRequestDto requestDto, Long boardId, User loginUser) {
-        Optional<UserBoard> userBoard = userBoardRepository.findByBoardIdAndUserId(boardId, loginUser.getId());
+        Optional<UserBoard> userBoard = userBoardRepository.findByIdAndUserId(boardId, loginUser.getId());
         if (userBoard.isEmpty()) {
             throw new ColumnDuplicatedException(ColumnErrorCode.NOT_INVITED_USER);
         }
@@ -39,12 +39,11 @@ public class ColumnService {
         Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardNotFoundException(
                         ColumnErrorCode.BOARD_NOT_FOUND));
-        if (columnRepository.findByBoardIdAndColumnName(requestDto.getColumnName(),
-                boardId).isPresent()) {
+        if (columnRepository.findByColumnIdAndColumnName(boardId, requestDto.getColumnName()).isPresent()) {
             throw new ColumnDuplicatedException(ColumnErrorCode.COLUMN_ALREADY_REGISTERED_ERROR);
         }
 
-        Long columnOrder = columnRepository.countByBoardId(boardId);
+        Long columnOrder = columnRepository.countByColumnId(boardId);
         Columns columns = Columns.builder().board(board).columnName(requestDto.getColumnName())
                 .order(columnOrder +1).build();
         columnRepository.save(columns);
@@ -57,7 +56,7 @@ public class ColumnService {
         Columns columns = columnRepository.findById(columnId)
                 .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
         columnRepository.deleteById(columnId);
-        List<Columns> columnsList = columnRepository.findAllByBoardIdAndColumnOrderGreaterThan(
+        List<Columns> columnsList = columnRepository.findAllByColumnIdAndColumnOrderGreaterThan(
                 columns.getBoard().getBoardId(), columns.getColumnOrder());
         for (Columns column : columnsList) {
             column.setColumnOrder(column.getColumnOrder() - 1);
@@ -72,7 +71,7 @@ public class ColumnService {
                 .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
 
         Long boardId = columns.getBoard().getBoardId();
-        Long maxOrder = columnRepository.countByBoardId(boardId) - 1;
+        Long maxOrder = columnRepository.countByColumnId(boardId) - 1;
 
         if (newOrder < 0 || newOrder > maxOrder) {
             throw new InvalidOrderException(ColumnErrorCode.INVALID_ORDER);
@@ -81,7 +80,7 @@ public class ColumnService {
         if (Objects.equals(columns.getColumnOrder(), newOrder)) {
             throw new InvalidOrderException(ColumnErrorCode.INVALID_ORDER);
         } else if (columns.getColumnOrder() > newOrder) {
-            List<Columns> columnsList = columnRepository.findAllByBoardIdAndColumnOrderBetween(
+            List<Columns> columnsList = columnRepository.findAllByColumnIdAndColumnOrderBetween(
                     boardId, newOrder, columns.getColumnOrder());
             for (Columns column : columnsList) {
                 if (Objects.equals(column.getColumnId(), columns.getColumnId())) {
@@ -91,7 +90,7 @@ public class ColumnService {
                 column.setColumnOrder(column.getColumnOrder() + 1);
             }
         } else {
-            List<Columns> columnsList = columnRepository.findAllByBoardIdAndColumnOrderBetween(
+            List<Columns> columnsList = columnRepository.findAllByColumnIdAndColumnOrderBetween(
                     boardId, columns.getColumnOrder(), newOrder);
             for (Columns column : columnsList) {
                 if (column.equals(columns)) {

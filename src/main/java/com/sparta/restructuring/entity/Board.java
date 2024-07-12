@@ -25,7 +25,8 @@ public class Board {
 
     private String boardExplain;
 
-    private List<String> invitedUsers = new ArrayList<>();
+    @OneToMany
+    private List<UserBoard> invitedUsers = new ArrayList<>();
 
     @OneToMany(mappedBy = "board", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<UserBoard> userBoardList = new ArrayList<>();
@@ -44,7 +45,8 @@ public class Board {
         this.boardExplain = boardExplain;
     }
 
-    public void addInvitedUser(String username) {
-        invitedUsers.add(username);
+    public void setInvitedUsers(List<UserBoard> invitedUsers){
+        this.userBoardList = invitedUsers;
     }
+
 }

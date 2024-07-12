@@ -1,6 +1,5 @@
 package com.sparta.restructuring.repository;
 
-
 import com.sparta.restructuring.entity.Columns;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -9,17 +8,13 @@ import java.util.Optional;
 
 public interface ColumnRepository extends JpaRepository<Columns, Long> {
 
-    Long countByBoardId(Long boardId);
+    Long countByColumnId(Long boardId);
 
-    List<Columns> findAllByBoardIdOrderByColumnOrderAsc(Long boardId);
+    Optional<Columns> findByColumnIdAndColumnName(Long boardId, String columnName);
 
-    boolean existsByColumnNameAndBoardId(String columnName, Long boardId);
+    List<Columns> findAllByColumnIdAndColumnOrderBetween(Long boardId, Long newOrder, Long columnOrder);
 
-    Optional<Columns> findByBoardIdAndColumnName(String columnName, Long boardId);
-
-    List<Columns> findAllByBoardIdAndColumnOrderBetween(Long boardId, Long newOrder, Long columnOrder);
-
-    List<Columns> findAllByBoardIdAndColumnOrderGreaterThan(Long id, Long columnOrder);
+    List<Columns> findAllByColumnIdAndColumnOrderGreaterThan(Long id, Long columnOrder);
 
     Columns findByStatus(String status);
 }

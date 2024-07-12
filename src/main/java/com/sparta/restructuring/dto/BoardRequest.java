@@ -1,6 +1,7 @@
 package com.sparta.restructuring.dto;
 
 import com.sparta.restructuring.entity.Board;
+import com.sparta.restructuring.entity.User;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
@@ -14,7 +15,7 @@ public class BoardRequest {
     @NotBlank
     private String boardExplain;
 
-    private List<String> invitedUsers;
+    private List<User> invitedUsers;
 
     public Board toEntity() {
         return Board.builder()
