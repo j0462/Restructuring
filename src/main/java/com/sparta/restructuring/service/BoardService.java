@@ -1,13 +1,19 @@
 package com.sparta.restructuring.service;
 
 import com.sparta.restructuring.dto.BoardRequest;
+import com.sparta.restructuring.dto.BoardResponse;
 import com.sparta.restructuring.entity.Board;
+import com.sparta.restructuring.entity.User;
 import com.sparta.restructuring.repository.BoardRepository;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
 public class BoardService {
@@ -18,29 +24,37 @@ public class BoardService {
         this.boardRepository = boardRepository;
     }
 
-    public Iterable<Board> getBoard() {
-        return boardRepository.findAll();
-    }
-
-    public Board createBoard(BoardRequest request) {
-        validateBoardRequest(request);
-        Board newBoard = request.toEntity();
-        return boardRepository.save(newBoard);
+    public List<BoardResponse> getBoard() {
+        Iterable<Board> boardIterable = boardRepository.findAll();
+        List<Board> board = StreamSupport.stream(boardIterable.spliterator(), false)
+                .collect(Collectors.toList());
+        List<BoardResponse> response = board.stream()
+                .map(BoardResponse::new)
+                .collect(Collectors.toList());
+        return response;
     }
 
     @Transactional
-    public Board updateBoard(Long boardId, BoardRequest request) {
+    public BoardResponse createBoard(BoardRequest request) {
+        validateBoardRequest(request);
+        Board newBoard = request.toEntity();
+        boardRepository.save(newBoard);
+        return new BoardResponse(newBoard);
+    }
+
+    @Transactional
+    public BoardResponse updateBoard(Long boardId, BoardRequest request) {
         Board board = getBoardById(boardId);
         validateBoardRequest(request);
 
         board.setBoardName(request.getBoardName());
         board.setBoardExplain(request.getBoardExplain());
-
-        return boardRepository.save(board);
+        boardRepository.save(board);
+        return new BoardResponse(board);
     }
 
     @Transactional
-    public void deleteBoard(Long boardId, String boardName) {
+    public Long deleteBoard(Long boardId, String boardName) {
         Board board = getBoardById(boardId);
 
         if (!board.getBoardName().equals(boardName)) {
@@ -48,6 +62,7 @@ public class BoardService {
         }
 
         boardRepository.delete(board);
+        return board.getBoardId();
     }
 
     private void validateBoardRequest(BoardRequest request) {
@@ -66,7 +81,11 @@ public class BoardService {
     }
 
     @Transactional
-    public Board inviteUserToBoard(Long boardId, List<String> invitedUsers, String inviterUsername) {
+    public BoardResponse inviteUserToBoard(Long boardId, List<String> invitedUsers) {
+        // 현재 인증된 사용자의 정보를 가져옵니다.
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String inviterUsername = authentication.getName(); // 현재 사용자의 이름을 가져옵니다.
+
         Board board = getBoardById(boardId);
 
         // 초대자가 MANAGER 권한을 가지고 있거나 보드의 생성자인지 확인합니다.
@@ -92,7 +111,8 @@ public class BoardService {
         }
 
         // 업데이트된 보드 엔터티를 저장합니다.
-        return boardRepository.save(board);
+        boardRepository.save(board);
+        return new BoardResponse(board);
     }
 
     // 초대자가 MANAGER 권한을 가지거나 보드의 생성자인지 확인하는 메서드
