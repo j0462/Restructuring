@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Getter
 @NoArgsConstructor
 @Entity
@@ -14,6 +16,12 @@ public class Columns extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long columnId;
+
+    @Column(nullable = false)
+    private String status;
+
+    @OneToMany(mappedBy = "column")
+    private List<Card> cards;
 
     @Column(nullable = false)
     private String columnName;
@@ -38,7 +46,3 @@ public class Columns extends Timestamped {
     public void setColumnOrder(Long columnOrder) {
         this.columnOrder = columnOrder;
     }
-
-
-
-}

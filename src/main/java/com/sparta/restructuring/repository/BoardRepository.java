@@ -1,5 +1,6 @@
 package com.sparta.restructuring.repository;
 
+
 import com.sparta.restructuring.entity.Board;
 import org.springframework.data.jpa.repository.JpaRepository;
 

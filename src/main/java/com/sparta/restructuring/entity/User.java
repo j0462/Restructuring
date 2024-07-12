@@ -5,15 +5,7 @@ import java.util.List;
 
 import com.sparta.restructuring.dto.SignupRequest;
 
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -44,6 +36,9 @@ public class User {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private List<UserBoard> userBoardList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Card> cards;
 
 	public User(SignupRequest request, UserRole roleEnum) {
 		accountId = request.getAccountId();

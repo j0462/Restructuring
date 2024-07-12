@@ -20,4 +20,6 @@ public interface ColumnRepository extends JpaRepository<Columns, Long> {
     List<Columns> findAllByBoardIdAndColumnOrderBetween(Long boardId, Long newOrder, Long columnOrder);
 
     List<Columns> findAllByBoardIdAndColumnOrderGreaterThan(Long id, Long columnOrder);
+
+    Columns findBystatus(String status);
 }
