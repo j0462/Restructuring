@@ -12,6 +12,7 @@ import com.sparta.restructuring.exception.column.InvalidOrderException;
 import com.sparta.restructuring.exception.errorCode.ColumnErrorCode;
 import com.sparta.restructuring.repository.BoardRepository;
 import com.sparta.restructuring.repository.ColumnRepository;
+import com.sparta.restructuring.repository.UserBoardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ public class ColumnService {
 
     private final ColumnRepository columnRepository;
     private final BoardRepository boardRepository;
+    private final UserBoardRepository userBoardRepository;
 
     public void createColumn(ColumnCreateRequestDto requestDto, Long boardId, User loginUser) {
         Optional<UserBoard> userBoard = userBoardRepository.findByBoardIdAndUserId(boardId, loginUser.getId());
@@ -56,7 +58,7 @@ public class ColumnService {
                 .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
         columnRepository.deleteById(columnId);
         List<Columns> columnsList = columnRepository.findAllByBoardIdAndColumnOrderGreaterThan(
-                columns.getBoard().getId(), columns.getColumnOrder());
+                columns.getBoard().getBoardId(), columns.getColumnOrder());
         for (Columns column : columnsList) {
             column.setColumnOrder(column.getColumnOrder() - 1);
         }
@@ -69,7 +71,7 @@ public class ColumnService {
         Columns columns = columnRepository.findById(columnId)
                 .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
 
-        Long boardId = columns.getBoard().getId();
+        Long boardId = columns.getBoard().getBoardId();
         Long maxOrder = columnRepository.countByBoardId(boardId) - 1;
 
         if (newOrder < 0 || newOrder > maxOrder) {
