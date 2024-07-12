@@ -21,5 +21,5 @@ public interface ColumnRepository extends JpaRepository<Columns, Long> {
 
     List<Columns> findAllByBoardIdAndColumnOrderGreaterThan(Long id, Long columnOrder);
 
-    Columns findBystatus(String status);
+    Columns findByStatus(String status);
 }
