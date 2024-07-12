@@ -9,5 +9,5 @@ public class ColumnCreateRequestDto {
 
 
     private String columnName;
-    private Long ColumnOrder;
+    private Long columnOrder;
 }
