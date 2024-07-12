@@ -4,5 +4,5 @@ import com.sparta.restructuring.entity.Columns;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ColumnRepository extends JpaRepository<Columns, Long> {
-    Columns findBystatus(String status);
+    Columns findByStatus(String status);
 }

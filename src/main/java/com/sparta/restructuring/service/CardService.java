@@ -38,7 +38,7 @@ public class CardService {
     }
 
     public List<CardResponse> getCardsByStatus(String status) {
-        Columns column = columnRepository.findBystatus(status);
+        Columns column = columnRepository.findByStatus(status);
         List<Card> cards = cardRepository.findBycolumn(column);
         List<CardResponse> responses = new ArrayList<>();
         for (Card card : cards) {
@@ -70,7 +70,7 @@ public class CardService {
 
     @Transactional
     public CardResponse createCard(CardRequest request, User user) {
-        Columns column = columnRepository.findBystatus(request.getColumnStatus());
+        Columns column = columnRepository.findByStatus(request.getColumnStatus());
         Card card = Card.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
