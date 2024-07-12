@@ -1,8 +1,6 @@
 package com.sparta.restructuring.controller;
 
-import static com.sparta.restructuring.base.ControllerUtil.getFieldErrorResponseEntity;
-import static com.sparta.restructuring.base.ControllerUtil.getResponseEntity;
-
+import com.sparta.restructuring.dto.CardResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
@@ -23,6 +21,10 @@ import com.sparta.restructuring.service.UserService;
 
 import lombok.RequiredArgsConstructor;
 
+import java.util.List;
+
+import static com.sparta.restructuring.base.ControllerUtil.*;
+
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api")
@@ -42,11 +44,12 @@ public class UserController {
 		if (bindingResult.hasErrors()) {
 			return getFieldErrorResponseEntity(bindingResult, "회원가입 실패");
 		}
-
-		User user = userService.signup(request);
-		SignupResponse response = new SignupResponse(user);
-
-		return getResponseEntity(response, "회원 가입 성공");
+		try{
+			SignupResponse response = userService.signup(request);
+			return getResponseEntity(response, "회원 가입 성공");
+		} catch (Exception e) {
+			return getBadRequestResponseEntity(e);
+		}
 	}
 
 	@GetMapping("/user/logout")
@@ -54,8 +57,11 @@ public class UserController {
 		@AuthenticationPrincipal UserDetailsImpl userDetails,
 		HttpServletResponse httpResponse
 	) {
-		Long response = userService.logout(userDetails.getUser(), httpResponse);
-
-		return getResponseEntity(response, "로그아웃 성공");
+		try{
+			Long response = userService.logout(userDetails.getUser(), httpResponse);
+			return getResponseEntity(response, "로그아웃 성공");
+		} catch (Exception e) {
+			return getBadRequestResponseEntity(e);
+		}
 	}
 }

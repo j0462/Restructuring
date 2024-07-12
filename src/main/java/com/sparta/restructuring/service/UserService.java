@@ -2,6 +2,7 @@ package com.sparta.restructuring.service;
 
 import static com.sparta.restructuring.security.JwtProvider.AUTHORIZATION_HEADER;
 
+import com.sparta.restructuring.dto.SignupResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ public class UserService {
 	@Value("${admin.token}")
 	private String adminToken;
 
-	public User signup(SignupRequest request) {
+	public SignupResponse signup(SignupRequest request) {
 
 		if (userRepository.existsByUserName(request.getUserName())) {
 			throw new IllegalArgumentException("이미 존재하는 아이디입니다.");
@@ -47,7 +48,8 @@ public class UserService {
 
 		request.setPassword(encodedPassword);
 		User user = new User(request, role);
-		return userRepository.save(user);
+		userRepository.save(user);
+		return new SignupResponse(user);
 	}
 
 	public Long logout(User user, HttpServletResponse response) {
