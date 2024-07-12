@@ -1,11 +1,11 @@
 package com.sparta.restructuring.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
+import lombok.Data;
 
 import java.time.LocalDate;
 
-@Getter
+@Data
 public class CardRequest {
     @NotBlank(message = "카드 이름은 필수 값 입니다.")
     private String title;
