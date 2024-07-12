@@ -69,13 +69,14 @@ public class CardService {
     }
 
     @Transactional
-    public CardResponse createCard(CardRequest request) {
+    public CardResponse createCard(CardRequest request, User user) {
         Columns column = columnRepository.findBystatus(request.getColumnStatus());
         Card card = Card.builder()
                 .title(request.getTitle())
                 .content(request.getContent())
                 .date(request.getDate())
                 .column(column)
+                .user(user)
                 .build();
         cardRepository.save(card);
         return CardResponse.builder()
@@ -87,12 +88,16 @@ public class CardService {
     }
 
     @Transactional
-    public CardResponse updateCard(Long id, CardRequest updatedCard) {
+    public CardResponse updateCard(Long id, CardRequest updatedCard, User user) {
         Optional<Card> existingCard = cardRepository.findById(id);
         if (existingCard.isEmpty()) {
             throw new IllegalArgumentException("Card를 찾을 수 없습니다");
         }
-        Card card = Card.builder()
+        Card card = existingCard.get();
+        if(card.getUser().getId() != user.getId()) {
+            throw new IllegalArgumentException("작성자가 아닙니다");
+        }
+        card =Card.builder()
                 .title(updatedCard.getTitle())
                 .content(updatedCard.getContent())
                 .date(updatedCard.getDate())
@@ -107,12 +112,15 @@ public class CardService {
     }
 
     @Transactional
-    public Long deleteCard(Long id) {
+    public Long deleteCard(Long id, User user) {
         Optional<Card> existingCard = cardRepository.findById(id);
         if (existingCard.isEmpty()) {
             throw new IllegalArgumentException("Card를 찾을 수 없습니다");
         }
         Card card = existingCard.get();
+        if(card.getUser().getId() != user.getId()) {
+            throw new IllegalArgumentException("작성자가 아닙니다");
+        }
         cardRepository.delete(card);
         return card.getId();
     }
