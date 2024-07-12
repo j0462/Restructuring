@@ -1,10 +1,10 @@
 package com.sparta.restructuring.service;
 
 import com.sparta.restructuring.dto.ColumnCreateRequestDto;
-import com.sparta.restructuring.dto.ColumnFindRequestDto;
-import com.sparta.restructuring.dto.ColumnFindResponseDto;
-import com.sparta.restructuring.dto.ColumnModifyRequestDto;
 import com.sparta.restructuring.entity.Board;
+import com.sparta.restructuring.entity.Columns;
+import com.sparta.restructuring.entity.User;
+import com.sparta.restructuring.entity.UserBoard;
 import com.sparta.restructuring.exception.column.BoardNotFoundException;
 import com.sparta.restructuring.exception.column.ColumnDuplicatedException;
 import com.sparta.restructuring.exception.column.ColumnNotFoundException;
@@ -13,12 +13,12 @@ import com.sparta.restructuring.exception.errorCode.ColumnErrorCode;
 import com.sparta.restructuring.repository.BoardRepository;
 import com.sparta.restructuring.repository.ColumnRepository;
 import lombok.RequiredArgsConstructor;
-import com.sparta.restructuring.entity.Columns;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 
 @Service
@@ -28,24 +28,29 @@ public class ColumnService {
     private final ColumnRepository columnRepository;
     private final BoardRepository boardRepository;
 
-    public void createColumn(ColumnCreateRequestDto requestDto) {
-        Board board = boardRepository.findById(requestDto.getBoardId())
+    public void createColumn(ColumnCreateRequestDto requestDto, Long boardId, User loginUser) {
+        Optional<UserBoard> userBoard = userBoardRepository.findByBoardIdAndUserId(boardId, loginUser.getId());
+        if (userBoard.isEmpty()) {
+            throw new ColumnDuplicatedException(ColumnErrorCode.NOT_INVITED_USER);
+        }
+
+        Board board = boardRepository.findById(boardId)
                 .orElseThrow(() -> new BoardNotFoundException(
                         ColumnErrorCode.BOARD_NOT_FOUND));
-        if (columnRepository.existsByColumnNameAndBoardId(requestDto.getColumnName(),
-                requestDto.getBoardId())) {
+        if (columnRepository.findByBoardIdAndColumnName(requestDto.getColumnName(),
+                boardId).isPresent()) {
             throw new ColumnDuplicatedException(ColumnErrorCode.COLUMN_ALREADY_REGISTERED_ERROR);
         }
 
-        Long columnOrder = columnRepository.countByBoardId(requestDto.getBoardId());
+        Long columnOrder = columnRepository.countByBoardId(boardId);
         Columns columns = Columns.builder().board(board).columnName(requestDto.getColumnName())
-                .order(columnOrder).build();
+                .order(columnOrder +1).build();
         columnRepository.save(columns);
     }
 
 
     @Transactional
-    public void deleteColumn(Long columnId) {
+    public void deleteColumn(Long columnId, User loginUser) {
 
         Columns columns = columnRepository.findById(columnId)
                 .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
@@ -59,7 +64,7 @@ public class ColumnService {
 
 
     @Transactional
-    public void modifyColumnOrder(Long columnId, Long newOrder) {
+    public void modifyColumnOrder(Long columnId, Long newOrder, User loginUser) {
 
         Columns columns = columnRepository.findById(columnId)
                 .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));

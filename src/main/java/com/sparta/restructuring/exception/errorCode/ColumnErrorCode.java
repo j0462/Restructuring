@@ -13,7 +13,8 @@ public enum ColumnErrorCode implements ErrorCode {
     COLUMN_NOT_FOUND(HttpStatus.NOT_FOUND.value(), "해당 컬럼이 존재하지 않습니다."),
     COLUMN_ALREADY_REGISTERED_ERROR(HttpStatus.BAD_REQUEST.value(), "중복된 컬럼명입니다."),
     INVALID_ORDER(HttpStatus.BAD_REQUEST.value(), "순서 입력값이 올바르지 않습니다"),
-    DELETED_BOARD(HttpStatus.NOT_FOUND.value(), "삭제된 보드입니다.");
+    DELETED_BOARD(HttpStatus.NOT_FOUND.value(), "삭제된 보드입니다."),
+    NOT_INVITED_USER(HttpStatus.NOT_FOUND.value(), "초대되지 않은 사용자입니다.");
 
     private final int httpStatusCode;
     private final String errorDescription;
