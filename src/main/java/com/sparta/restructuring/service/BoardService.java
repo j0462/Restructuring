@@ -117,7 +117,7 @@ public class BoardService {
         }
         List<UserBoard> userBoardList = new ArrayList<>();
         for (User user : InvitedName){
-            UserBoard userBoard = userBoardRepository.findByUser(user);
+            UserBoard userBoard = new UserBoard();
             userBoardList.add(userBoard);
         }
         board.setInvitedUsers(userBoardList);
