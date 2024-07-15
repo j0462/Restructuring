@@ -187,7 +187,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(response => response.json())
                 .then(data => {
                     if (data.statusCode === 200) {
-                        location.reload(); // 페이지 새로고침
+                        fetchColumns(boardId); // 페이지 새로고침 없이 컬럼 새로고침
                     } else {
                         alert(data.message);
                     }
@@ -223,9 +223,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(response => response.json())
                 .then(data => {
                     if (data.statusCode === 200) {
-                        location.reload(); // 페이지 새로고침
+                        const cardElement = document.querySelector(`.card-title button[onclick="deleteCard(${cardId})"]`).closest('.card');
+                        cardElement.remove();
                     } else {
-                        alert(data.message);
+                        alert('카드 삭제 실패: ' + data.message);
                     }
                 })
                 .catch(error => {
@@ -324,7 +325,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (data.statusCode !== 200) {
                         alert(data.message);
                     } else {
-                        // 업데이트 성공 후 데이터셋의 columnOrder를 업데이트
                         document.querySelector(`[data-column-id="${columnId}"]`).dataset.columnOrder = newOrder;
                     }
                 })
@@ -348,7 +348,7 @@ document.addEventListener('DOMContentLoaded', () => {
     saveEditBtn.addEventListener('click', () => {
         if (currentEditType === 'column') {
             const columnName = editTitle.value;
-            fetch(`/api/board/${currentEditId}`, {
+            fetch(`/api/boards/${currentEditId}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -384,7 +384,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(response => response.json())
                 .then(data => {
                     if (data.statusCode === 200) {
-                        location.reload();
+                        fetchColumns(boardId); // 컬럼을 새로고침하여 수정된 카드 표시
+                        modal.style.display = "none";
                     } else {
                         alert(data.message);
                     }

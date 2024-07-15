@@ -7,9 +7,11 @@ import java.util.List;
 
 import com.sparta.restructuring.base.BasicResponse;
 import com.sparta.restructuring.base.CommonResponse;
+import com.sparta.restructuring.dto.CardRequest;
 import com.sparta.restructuring.dto.CardResponse;
 import com.sparta.restructuring.dto.ColumnCreateRequestDto;
 import com.sparta.restructuring.dto.ColumnResponse;
+import com.sparta.restructuring.dto.ColumnUpdateRequest;
 import com.sparta.restructuring.security.UserDetailsImpl;
 import com.sparta.restructuring.service.ColumnService;
 import jakarta.validation.Valid;
@@ -63,6 +65,21 @@ public class ColumnController {
         try{
             ColumnResponse response = columnService.modifyColumnOrder(columnId, order, userDetails.getUser());
             return getResponseEntity(response, "컬럼 순서 변경 성공");
+        } catch (Exception e) {
+            return getBadRequestResponseEntity(e);
+        }
+    }
+
+    // 컬럼 수정
+    @PutMapping("/{columnId}")
+    public ResponseEntity<CommonResponse> updateColumn(
+        @PathVariable Long columnId,
+        @RequestBody ColumnUpdateRequest request,
+        @AuthenticationPrincipal UserDetailsImpl userDetails
+    ) {
+        try{
+            ColumnResponse response = columnService.updateColumn(columnId, request, userDetails.getUser());
+            return getResponseEntity(response, "컬럼 수정 성공");
         } catch (Exception e) {
             return getBadRequestResponseEntity(e);
         }

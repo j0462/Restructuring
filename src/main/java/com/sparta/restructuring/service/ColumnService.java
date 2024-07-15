@@ -4,7 +4,9 @@ package com.sparta.restructuring.service;
 import com.sparta.restructuring.dto.CardResponse;
 import com.sparta.restructuring.dto.ColumnCreateRequestDto;
 import com.sparta.restructuring.dto.ColumnResponse;
+import com.sparta.restructuring.dto.ColumnUpdateRequest;
 import com.sparta.restructuring.entity.Board;
+import com.sparta.restructuring.entity.Card;
 import com.sparta.restructuring.entity.Columns;
 import com.sparta.restructuring.entity.User;
 import com.sparta.restructuring.entity.UserBoard;
@@ -122,6 +124,17 @@ public class ColumnService {
         return columnResponselist;
     }
 
+    public ColumnResponse updateColumn(Long columnId, ColumnUpdateRequest request, User user) {
+        Columns column = columnRepository.findById(columnId).orElseThrow(() -> new IllegalArgumentException("Column을 찾을 수 없습니다."));
 
+        column.updateColumnName(request.getColumnName());
+        columnRepository.save(column);
 
+        return ColumnResponse.builder()
+            .columnId(column.getColumnId())
+            .columnName(column.getColumnName())
+            .columnOrder(column.getColumnOrder())
+            .boardId(column.getBoard().getBoardId())
+            .build();
+    }
 }
