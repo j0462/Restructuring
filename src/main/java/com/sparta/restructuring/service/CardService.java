@@ -7,6 +7,7 @@ import com.sparta.restructuring.entity.Columns;
 import com.sparta.restructuring.entity.User;
 import com.sparta.restructuring.repository.CardRepository;
 import com.sparta.restructuring.repository.ColumnRepository;
+import com.sparta.restructuring.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -21,6 +22,8 @@ public class CardService {
     private CardRepository cardRepository;
     @Autowired
     private ColumnRepository columnRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public List<CardResponse> getAllCards() {
         List<Card> cards = cardRepository.findAll();
@@ -38,7 +41,7 @@ public class CardService {
     }
 
     public List<CardResponse> getCardsByStatus(String status) {
-        Columns column = columnRepository.findByStatus(status);
+        Columns column = columnRepository.findByColumnName(status);
         List<Card> cards = cardRepository.findBycolumn(column);
         List<CardResponse> responses = new ArrayList<>();
         for (Card card : cards) {
@@ -53,7 +56,8 @@ public class CardService {
         return responses;
     }
 
-    public List<CardResponse> getCardsByUser(User user) {
+    public List<CardResponse> getCardsByUser(Long userId) {
+        User user = userRepository.findById(userId).orElse(null);
         List<Card> cards = cardRepository.findByUser(user);
         List<CardResponse> responses = new ArrayList<>();
         for (Card card : cards) {
@@ -70,7 +74,7 @@ public class CardService {
 
     @Transactional
     public CardResponse createCard(CardRequest request, User user) {
-        Columns column = columnRepository.findByStatus(request.getColumnStatus());
+        Columns column = columnRepository.findByColumnName(request.getColumnStatus());
         Card card = Card.builder()
                 .title(request.getTitle())
                 .content(request.getContent())

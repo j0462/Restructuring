@@ -34,7 +34,7 @@ public class CardController {
         }
     }
 
-    @GetMapping("/{status}")
+    @GetMapping("/status/{status}")
     public ResponseEntity<CommonResponse> getCardsByStatus(
             @PathVariable String status
     ) {
@@ -46,13 +46,12 @@ public class CardController {
         }
     }
 
-    @GetMapping("/{userId}")
+    @GetMapping("/userId/{userId}")
     public ResponseEntity<CommonResponse> getCardsByUser(
             @PathVariable Long userId
     ) {
         try{
-            User user = new User(); // 인증들어오면 수정
-            List<CardResponse> response = cardService.getCardsByUser(user);
+            List<CardResponse> response = cardService.getCardsByUser(userId);
             return getResponseEntity(response, "카드 유저별 조회 성공");
         } catch (Exception e) {
             return getBadRequestResponseEntity(e);

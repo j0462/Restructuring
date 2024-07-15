@@ -16,5 +16,5 @@ public interface ColumnRepository extends JpaRepository<Columns, Long> {
 
     List<Columns> findAllByColumnIdAndColumnOrderGreaterThan(Long id, Long columnOrder);
 
-    Columns findByStatus(String status);
+    Columns findByColumnName(String status);
 }

@@ -17,9 +17,6 @@ public class Columns extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long columnId;
 
-    @Column(nullable = false)
-    private String status;
-
     @OneToMany(mappedBy = "column")
     private List<Card> cards;
 
