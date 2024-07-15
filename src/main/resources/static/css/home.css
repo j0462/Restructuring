@@ -1,3 +1,4 @@
+/* General styles */
 body {
     font-family: 'Arial', sans-serif;
     margin: 0;
@@ -39,7 +40,6 @@ main {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    position: relative;
 }
 
 .column.dragging {
@@ -49,9 +49,6 @@ main {
 .column-title {
     font-weight: bold;
     margin-bottom: 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 .cards {
@@ -66,13 +63,11 @@ main {
     padding: 10px;
     box-shadow: 0 1px 0 rgba(9, 30, 66, 0.25);
     position: relative;
+    cursor: pointer;
 }
 
 .card-title {
     font-weight: bold;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 
 .card-content {
@@ -85,7 +80,7 @@ main {
     color: #6b778c;
 }
 
-.add-card-btn, .add-column-btn, .invite-user-btn {
+.add-card-btn, .add-column-btn {
     background-color: #5aac44;
     color: white;
     border: none;
@@ -96,7 +91,7 @@ main {
     align-self: flex-start;
 }
 
-.add-card-btn:hover, .add-column-btn:hover, .invite-user-btn:hover {
+.add-card-btn:hover, .add-column-btn:hover {
     background-color: #61bd4f;
 }
 
@@ -107,17 +102,10 @@ main {
     border-radius: 3px;
     padding: 5px;
     cursor: pointer;
-    margin-left: 5px;
-    position: absolute;
-    top: 10px;
-}
-
-.edit-btn {
-    right: 40px;
+    margin: 5px;
 }
 
 .delete-btn {
-    right: 10px;
     background-color: #d9534f;
 }
 
@@ -166,34 +154,20 @@ main {
     cursor: pointer;
 }
 
-.comments-container {
+#card-detail-modal .modal-content {
+    max-width: 600px;
+}
+
+#card-comments-container {
+    max-height: 300px;
+    overflow-y: auto;
     margin-top: 20px;
     text-align: left;
 }
 
-.comments-container .comment {
-    background-color: #ebecf0;
-    border-radius: 3px;
+.comment {
+    background-color: #f1f1f1;
+    margin: 5px 0;
     padding: 10px;
-    margin-bottom: 10px;
-}
-
-.comments-container .comment .comment-date {
-    font-size: 0.8em;
-    color: #6b778c;
-    text-align: right;
-}
-
-.add-comment-btn {
-    background-color: #0079bf;
-    color: white;
-    border: none;
     border-radius: 3px;
-    padding: 10px;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.add-comment-btn:hover {
-    background-color: #026aa7;
 }

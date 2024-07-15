@@ -10,14 +10,13 @@
 <body>
 <header>
     <h1 id="board-title">보드 이름</h1>
-    <button id="invite-user-btn">사용자 초대</button>
 </header>
 <main>
     <div id="columns-container" class="columns-container"></div>
     <button id="add-column-btn" class="add-column-btn">컬럼 추가하기</button>
 </main>
 
-<!-- Edit Modal -->
+<!-- Modal for editing column/card -->
 <div id="edit-modal" class="modal">
     <div class="modal-content">
         <span class="close">&times;</span>
@@ -29,14 +28,17 @@
     </div>
 </div>
 
-<!-- Comment Modal -->
-<div id="comment-modal" class="modal">
+<!-- Card Detail Modal -->
+<div id="card-detail-modal" class="modal">
     <div class="modal-content">
-        <span class="close-comment">&times;</span>
-        <h2>댓글</h2>
-        <div id="comments-container"></div>
-        <textarea id="new-comment-content" placeholder="댓글 작성"></textarea>
-        <button id="add-comment-btn">댓글 추가</button>
+        <span class="close-card-detail">&times;</span>
+        <h2 id="card-detail-title">카드 상세</h2>
+        <div id="card-detail-content"></div>
+        <div id="card-detail-date"></div>
+        <h3>댓글</h3>
+        <textarea id="new-card-comment" placeholder="댓글을 입력하세요"></textarea>
+        <button id="add-card-comment-btn">댓글 추가</button>
+        <div id="card-comments-container"></div>
     </div>
 </div>
 
