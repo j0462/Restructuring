@@ -31,11 +31,10 @@ public class Columns extends Timestamped {
     private Board board;
 
     @Builder
-    public Columns(String columnName, Board board, Long order, String status) {
+    public Columns(String columnName, Board board, Long order) {
         this.columnName = columnName;
         this.board = board;
         this.columnOrder = order;
-        this.status = status;
     }
 
 

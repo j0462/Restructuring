@@ -8,5 +8,4 @@ import lombok.Setter;
 public class ColumnCreateRequestDto {
     private String columnName;
     private Long columnOrder;
-    private String status;
 }

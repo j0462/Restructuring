@@ -1,6 +1,6 @@
+
 package com.sparta.restructuring.service;
 
-import com.sparta.restructuring.dto.BoardResponse;
 import com.sparta.restructuring.dto.ColumnCreateRequestDto;
 import com.sparta.restructuring.entity.Board;
 import com.sparta.restructuring.entity.Columns;
@@ -32,8 +32,8 @@ public class ColumnService {
     private final UserBoardRepository userBoardRepository;
 
     public void createColumn(ColumnCreateRequestDto requestDto, Long boardId, User loginUser) {
-        Optional<Board> existboard = boardRepository.findById(boardId);
-        Optional<UserBoard> userBoard = userBoardRepository.findByBoardAndUser(existboard.get(), loginUser);
+        Board existboard = boardRepository.findById(boardId).orElse(null);
+        Optional<UserBoard> userBoard = userBoardRepository.findByBoardAndUser(existboard, loginUser);
         if (userBoard.isEmpty()) {
             throw new ColumnDuplicatedException(ColumnErrorCode.NOT_INVITED_USER);
         }
@@ -46,7 +46,7 @@ public class ColumnService {
         }
 
         Long columnOrder = columnRepository.countByColumnId(boardId);
-        Columns columns = Columns.builder().board(board).columnName(requestDto.getColumnName()).status(requestDto.getStatus())
+        Columns columns = Columns.builder().board(board).columnName(requestDto.getColumnName())
                 .order(columnOrder +1).build();
         columnRepository.save(columns);
     }
@@ -54,7 +54,8 @@ public class ColumnService {
 
     @Transactional
     public void deleteColumn(Long columnId, Long boardId, User loginUser) {
-        Optional<UserBoard> userBoard = userBoardRepository.findByIdAndUserId(boardId, loginUser.getId());
+        Board existboard = boardRepository.findById(boardId).orElse(null);
+        Optional<UserBoard> userBoard = userBoardRepository.findByBoardAndUser(existboard, loginUser);
         if (userBoard.isEmpty()) {
             throw new ColumnDuplicatedException(ColumnErrorCode.NOT_INVITED_USER);
         }
@@ -79,7 +80,8 @@ public class ColumnService {
         Long boardId = columns.getBoard().getBoardId();
         /*Long maxOrder = columnRepository.countByColumnId(boardId) - 1;*/
 
-        Optional<UserBoard> userBoard = userBoardRepository.findByIdAndUserId(boardId, loginUser.getId());
+        Board existboard = boardRepository.findById(boardId).orElse(null);
+        Optional<UserBoard> userBoard = userBoardRepository.findByBoardAndUser(existboard, loginUser);
         if (userBoard.isEmpty()) {
             throw new ColumnDuplicatedException(ColumnErrorCode.NOT_INVITED_USER);
         }
