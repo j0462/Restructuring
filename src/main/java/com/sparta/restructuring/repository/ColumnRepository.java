@@ -1,6 +1,7 @@
 package com.sparta.restructuring.repository;
 
 import com.sparta.restructuring.entity.Columns;
+import com.sparta.restructuring.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -19,4 +20,6 @@ public interface ColumnRepository extends JpaRepository<Columns, Long> {
     List<Columns> findAllByColumnIdAndColumnOrderGreaterThan(Long id, Long columnOrder);
 
     Columns findByColumnName(String status);
+
+    List<Columns> findByBoardBoardId(Long boardId);
 }

@@ -2,6 +2,7 @@
 package com.sparta.restructuring.service;
 
 import com.sparta.restructuring.dto.ColumnCreateRequestDto;
+import com.sparta.restructuring.dto.ColumnResponse;
 import com.sparta.restructuring.entity.Board;
 import com.sparta.restructuring.entity.Columns;
 import com.sparta.restructuring.entity.User;
@@ -18,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -31,7 +33,7 @@ public class ColumnService {
     private final BoardRepository boardRepository;
     private final UserBoardRepository userBoardRepository;
 
-    public void createColumn(ColumnCreateRequestDto requestDto, Long boardId, User loginUser) {
+    public ColumnResponse createColumn(ColumnCreateRequestDto requestDto, Long boardId, User loginUser) {
         Board existboard = boardRepository.findById(boardId).orElse(null);
         Optional<UserBoard> userBoard = userBoardRepository.findByBoardAndUser(existboard, loginUser);
         if (userBoard.isEmpty()) {
@@ -49,11 +51,12 @@ public class ColumnService {
         Columns columns = Columns.builder().board(board).columnName(requestDto.getColumnName())
                 .order(columnOrder +1).build();
         columnRepository.save(columns);
+        return new ColumnResponse(columns.getColumnId(), columns.getColumnName(), columns.getColumnOrder(), board.getBoardId());
     }
 
 
     @Transactional
-    public void deleteColumn(Long columnId, Long boardId, User loginUser) {
+    public Long deleteColumn(Long columnId, Long boardId, User loginUser) {
         Board existboard = boardRepository.findById(boardId).orElse(null);
         Optional<UserBoard> userBoard = userBoardRepository.findByBoardAndUser(existboard, loginUser);
         if (userBoard.isEmpty()) {
@@ -68,11 +71,12 @@ public class ColumnService {
         for (Columns column : columnsList) {
             column.setColumnOrder(column.getColumnOrder() - 1);
         }
+        return columns.getColumnId();
     }
 
 
     @Transactional
-    public void modifyColumnOrder(Long columnId, Long newOrder, User loginUser) {
+    public ColumnResponse modifyColumnOrder(Long columnId, Long newOrder, User loginUser) {
 
         Columns columns = columnRepository.findById(columnId)
                 .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
@@ -114,5 +118,26 @@ public class ColumnService {
             }
         }
 
+        columnRepository.save(columns);
+        return new ColumnResponse(columns.getColumnId(), columns.getColumnName(), columns.getColumnOrder(), boardId);
     }
+
+    public List<ColumnResponse> getAllColumns(Long boardId, User loginUser) {
+        Board existboard = boardRepository.findById(boardId).orElse(null);
+        Optional<UserBoard> userBoard = userBoardRepository.findByBoardAndUser(existboard, loginUser);
+        if (userBoard.isEmpty()) {
+            throw new ColumnDuplicatedException(ColumnErrorCode.NOT_INVITED_USER);
+        }
+
+        List<Columns> columnsList = columnRepository.findByBoardBoardId(boardId);
+        List<ColumnResponse> columnResponselist = new ArrayList<>();
+
+        for (Columns column : columnsList) {
+            ColumnResponse columnResponseDto = new ColumnResponse(column.getColumnId(), column.getColumnName(), column.getColumnOrder(), boardId);
+            columnResponselist.add(columnResponseDto);
+        }
+
+        return columnResponselist;
+    }
+
 }
