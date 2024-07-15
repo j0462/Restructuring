@@ -264,8 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(response => response.json())
                 .then(data => {
                     if (data.statusCode === 200) {
-                        const cardElement = document.querySelector(`.card-title button[onclick="deleteCard(${cardId})"]`).closest('.card');
-                        cardElement.remove();
+                        location.reload();
                     } else {
                         alert('카드 삭제 실패: ' + data.message);
                     }
@@ -425,7 +424,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(response => response.json())
                 .then(data => {
                     if (data.statusCode === 200) {
-                        fetchColumns(boardId); // 컬럼을 새로고침하여 수정된 카드 표시
+                        fetchColumns(boardId);
                         modal.style.display = "none";
                     } else {
                         alert(data.message);
