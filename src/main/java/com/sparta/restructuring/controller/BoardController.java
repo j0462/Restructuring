@@ -79,11 +79,10 @@ public class BoardController {
     @DeleteMapping("/{boardId}")
     public ResponseEntity<CommonResponse> deleteBoard(
             @PathVariable Long boardId,
-            @RequestBody BoardRequest request,
             @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         try{
-            Long response = boardService.deleteBoard(boardId, request.getBoardName(), userDetails.getUser());
+            Long response = boardService.deleteBoard(boardId, userDetails.getUser());
             return getResponseEntity(response, "보드 삭제 성공");
         } catch (Exception e) {
             return getBadRequestResponseEntity(e);

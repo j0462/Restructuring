@@ -74,20 +74,21 @@ public class BoardService {
 
         board.setBoardName(request.getBoardName());
         board.setBoardExplain(request.getBoardExplain());
-        UserBoard userBoard = new UserBoard(user, board);
+        Optional<UserBoard> optionalUserBoard = userBoardRepository.findByBoardAndUser(board, user);
+        if (!optionalUserBoard.isPresent()) {
+            // UserBoard가 존재하지 않으면 새로 생성
+            UserBoard userBoard = new UserBoard(user, board);
+            userBoardRepository.save(userBoard);
+        }
         boardRepository.save(board);
-        userBoardRepository.save(userBoard);
+
         return new BoardResponse(board);
     }
 
     //보드 삭제
     @Transactional
-    public Long deleteBoard(Long boardId, String boardName, User user) {
+    public Long deleteBoard(Long boardId, User user) {
         Board board = getBoardById(boardId);
-
-        if (!board.getBoardName().equals(boardName)) {
-            throw new IllegalArgumentException("삭제하려는 보드 이름과 일치하지 않습니다.");
-        }
 
         UserBoard userBoard = new UserBoard(user, board);
         boardRepository.delete(board);
