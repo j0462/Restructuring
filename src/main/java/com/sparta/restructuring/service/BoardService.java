@@ -13,7 +13,6 @@ import com.sparta.restructuring.repository.UserBoardRepository;
 import com.sparta.restructuring.repository.UserRepository;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -61,6 +60,7 @@ public class BoardService {
         validateBoardRequest(request);
         Board newBoard = request.toEntity();
         UserBoard userBoard = new UserBoard(user, newBoard);
+        newBoard.getUserBoardList().add(userBoard);
         boardRepository.save(newBoard);
         userBoardRepository.save(userBoard);
         return new BoardResponse(newBoard);
@@ -98,7 +98,7 @@ public class BoardService {
 
     // 보드 초대
     @Transactional
-    public BoardResponse inviteUserToBoard(Long boardId, List<User> invitedUsers) {
+    public BoardResponse inviteUserToBoard(Long boardId, Long userId) {
         String inviterUsername = getCurrentUsername();
         Board board = getBoardById(boardId);
 
@@ -106,25 +106,19 @@ public class BoardService {
             throw new PermissionDeniedException(BoardErrorCode.PERMISSION_DENIED);
         }
 
-        validateInvitedUsers(invitedUsers);
+        User inviteduser = userRepository.findById(userId).orElse(null);
+        validateInvitedUsers(inviteduser);
 
-        for (User user : invitedUsers) {
-            if (!isValidUser(user)) {
-                throw new UserNotFoundException(BoardErrorCode.USER_NOT_FOUND);
-            }
-            if (isUserAlreadyInvited(user, board)) {
-                throw new UserAlreadyInvitedException(BoardErrorCode.USER_ALREADY_INVITED);
-            }
+        if (!isValidUser(inviteduser)) {
+            throw new UserNotFoundException(BoardErrorCode.USER_NOT_FOUND);
+        }
+        if (isUserAlreadyInvited(inviteduser, board)) {
+            throw new UserAlreadyInvitedException(BoardErrorCode.USER_ALREADY_INVITED);
         }
 
-        List<UserBoard> userBoardList = invitedUsers.stream()
-                .map(user -> {
-                    UserBoard userBoard = new UserBoard();
-                    return userBoard;
-                })
-                .collect(Collectors.toList());
+        UserBoard userBoard = new UserBoard(inviteduser, board);
 
-        board.getInvitedUsers().addAll(userBoardList);
+        board.getUserBoardList().add(userBoard);
         boardRepository.save(board);
         return new BoardResponse(board);
     }
@@ -162,11 +156,9 @@ public class BoardService {
     }
 
     // 초대할 사용자들이 유효한지 확인합니다.
-    private void validateInvitedUsers(List<User> invitedUsers) {
-        for (User user : invitedUsers) {
-            if (userRepository.findByAccountId(user.getAccountId()) == null) {
-                throw new IllegalArgumentException(user.getAccountId() + " 사용자가 존재하지 않습니다.");
-            }
+    private void validateInvitedUsers(User user) {
+        if (userRepository.findByAccountId(user.getAccountId()) == null) {
+            throw new IllegalArgumentException(user.getAccountId() + " 사용자가 존재하지 않습니다.");
         }
     }
 
@@ -177,6 +169,6 @@ public class BoardService {
 
     // 사용자가 이미 초대된 상태인지 확인하는 메서드
     private boolean isUserAlreadyInvited(User user, Board board) {
-        return board.getInvitedUsers().stream().anyMatch(userBoard -> userBoard.getUser().equals(user));
+        return board.getUserBoardList().stream().anyMatch(userBoard -> userBoard.getUser().equals(user));
     }
 }

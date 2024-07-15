@@ -7,6 +7,7 @@ import com.sparta.restructuring.security.UserDetailsImpl;
 import com.sparta.restructuring.service.BoardService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
@@ -17,7 +18,7 @@ import static com.sparta.restructuring.base.ControllerUtil.*;
 
 @RequestMapping("/api/board")
 @RestController
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class BoardController {
 
     private final BoardService boardService;
@@ -78,8 +79,8 @@ public class BoardController {
     // 보드 삭제
     @DeleteMapping("/{boardId}")
     public ResponseEntity<CommonResponse> deleteBoard(
-        @PathVariable Long boardId,
-        @AuthenticationPrincipal UserDetailsImpl userDetails
+            @PathVariable Long boardId,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         try{
             Long response = boardService.deleteBoard(boardId, userDetails.getUser());
@@ -90,14 +91,13 @@ public class BoardController {
     }
 
     // 보드 초대
-    @PostMapping("/{boardId}/invite")
+    @PostMapping("/{boardId}/invite/{userId}")
     public ResponseEntity<CommonResponse> inviteUserToBoard(
             @PathVariable Long boardId,
-            @RequestBody BoardRequest request,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
+            @PathVariable Long userId
     ) {
         try{
-            BoardResponse response = boardService.inviteUserToBoard(boardId, request.getInvitedUsers());
+            BoardResponse response = boardService.inviteUserToBoard(boardId, userId);
             return getResponseEntity(response, "보드 초대 성공");
         } catch (Exception e) {
             return getBadRequestResponseEntity(e);

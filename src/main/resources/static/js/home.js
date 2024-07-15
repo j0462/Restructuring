@@ -3,15 +3,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const boardTitle = document.getElementById('board-title');
     const columnsContainer = document.getElementById('columns-container');
     const addColumnBtn = document.getElementById('add-column-btn');
+    const inviteUserBtn = document.getElementById('invite-user-btn');
     let draggedColumn = null;
 
     const modal = document.getElementById("edit-modal");
     const span = document.getElementsByClassName("close")[0];
+    const commentModal = document.getElementById("comment-modal");
+    const commentSpan = document.getElementsByClassName("close-comment")[0];
     const modalTitle = document.getElementById("modal-title");
     const editTitle = document.getElementById("edit-title");
     const editContent = document.getElementById("edit-content");
     const editDate = document.getElementById("edit-date");
     const saveEditBtn = document.getElementById("save-edit-btn");
+    const addCommentBtn = document.getElementById("add-comment-btn");
+    const commentsContainer = document.getElementById("comments-container");
+    const newCommentContent = document.getElementById("new-comment-content");
 
     let currentEditType = '';
     let currentEditId = null;
@@ -130,7 +136,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="edit-btn" onclick="editCard(${card.id}, '${card.title}', '${card.content}', '${card.date}')">수정</button>
                     <button class="delete-btn" onclick="deleteCard(${card.id})">삭제</button>
                 </div>
-                <div class="card-content">${card.content}</div>
+                <div class="card-content" onclick="viewCard(${card.id}, '${card.title}', '${card.content}', '${card.date}')">${card.content}</div>
                 <div class="card-date">${card.date}</div>
             `;
             cardsContainer.appendChild(cardElement);
@@ -211,6 +217,80 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'block';
     };
 
+    window.viewCard = function(cardId, cardTitle, cardContent, cardDate) {
+        currentEditId = cardId;
+        modalTitle.innerText = '카드 상세 정보';
+        editTitle.value = cardTitle;
+        editContent.value = cardContent;
+        editDate.value = cardDate;
+        editContent.style.display = 'block';
+        editDate.style.display = 'block';
+        fetchComments(cardId);
+        commentModal.style.display = 'block';
+    };
+
+    function fetchComments(cardId) {
+        fetch(`/api/card/${cardId}/comments`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.statusCode === 200) {
+                    displayComments(data.data);
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('댓글 가져오기 실패:', error);
+                alert('댓글 가져오기 실패');
+            });
+    }
+
+    function displayComments(comments) {
+        commentsContainer.innerHTML = '';
+        comments.forEach(comment => {
+            const commentElement = document.createElement('div');
+            commentElement.classList.add('comment');
+            commentElement.innerHTML = `
+                <div class="comment-content">${comment.content}</div>
+                <div class="comment-date">${new Date(comment.createdAt).toLocaleString()}</div>
+            `;
+            commentsContainer.appendChild(commentElement);
+        });
+    }
+
+    addCommentBtn.addEventListener('click', () => {
+        const commentContent = newCommentContent.value;
+        if (commentContent) {
+            fetch(`/api/card/${currentEditId}/comments`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                body: JSON.stringify({ content: commentContent }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode === 200) {
+                        fetchComments(currentEditId);
+                        newCommentContent.value = '';
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('댓글 생성 실패:', error);
+                    alert('댓글 생성 실패');
+                });
+        }
+    });
+
     window.deleteCard = function(cardId) {
         if (confirm('정말 이 카드를 삭제하시겠습니까?')) {
             fetch(`/api/card/${cardId}`, {
@@ -258,6 +338,32 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(error => {
                     console.error('컬럼 생성 실패:', error);
                     alert('컬럼 생성 실패');
+                });
+        }
+    });
+
+    inviteUserBtn.addEventListener('click', () => {
+        const userName = prompt('초대할 사용자 이름:');
+        if (userName) {
+            fetch(`/api/board/${boardId}/invite`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                body: JSON.stringify({ invitedUsers: [{ username: userName }] }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode === 200) {
+                        alert('사용자 초대 성공');
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('사용자 초대 실패:', error);
+                    alert('사용자 초대 실패');
                 });
         }
     });
@@ -339,9 +445,16 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = "none";
     }
 
+    commentSpan.onclick = function() {
+        commentModal.style.display = "none";
+    }
+
     window.onclick = function(event) {
         if (event.target == modal) {
             modal.style.display = "none";
+        }
+        if (event.target == commentModal) {
+            commentModal.style.display = "none";
         }
     }
 
