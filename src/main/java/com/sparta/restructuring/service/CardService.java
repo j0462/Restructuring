@@ -101,18 +101,16 @@ public class CardService {
         if(card.getUser().getId() != user.getId()) {
             throw new IllegalArgumentException("작성자가 아닙니다");
         }
-        card =Card.builder()
-                .title(updatedCard.getTitle())
-                .content(updatedCard.getContent())
-                .date(updatedCard.getDate())
-                .build();
+        card.setTitle(updatedCard.getTitle());
+        card.setContent(updatedCard.getContent());
+        card.setDate(updatedCard.getDate());
         cardRepository.save(card);
         return CardResponse.builder()
-                .id(card.getId())
-                .title(card.getTitle())
-                .content(card.getContent())
-                .date(card.getDate())
-                .build();
+            .id(card.getId())
+            .title(card.getTitle())
+            .content(card.getContent())
+            .date(card.getDate())
+            .build();
     }
 
     @Transactional

@@ -5,6 +5,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const addColumnBtn = document.getElementById('add-column-btn');
     let draggedColumn = null;
 
+    const modal = document.getElementById("edit-modal");
+    const span = document.getElementsByClassName("close")[0];
+    const modalTitle = document.getElementById("modal-title");
+    const editTitle = document.getElementById("edit-title");
+    const editContent = document.getElementById("edit-content");
+    const editDate = document.getElementById("edit-date");
+    const saveEditBtn = document.getElementById("save-edit-btn");
+
+    let currentEditType = '';
+    let currentEditId = null;
+
     fetchBoardDetails(boardId);
     fetchColumns(boardId);
 
@@ -66,7 +77,11 @@ document.addEventListener('DOMContentLoaded', () => {
             columnElement.dataset.columnId = column.columnId;
             columnElement.dataset.columnOrder = column.columnOrder;
             columnElement.innerHTML = `
-                <div class="column-title">${column.columnName}</div>
+                <div class="column-title">
+                    ${column.columnName}
+                    <button class="edit-btn" onclick="editColumn(${column.columnId}, '${column.columnName}')">수정</button>
+                    <button class="delete-btn" onclick="deleteColumn(${column.columnId})">삭제</button>
+                </div>
                 <div class="cards" id="cards-${column.columnName}"></div>
                 <button class="add-card-btn" onclick="addCard(${column.columnId}, '${column.columnName}')">+ 카드 추가</button>
             `;
@@ -110,7 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const cardElement = document.createElement('div');
             cardElement.classList.add('card');
             cardElement.innerHTML = `
-                <div class="card-title">${card.title}</div>
+                <div class="card-title">
+                    ${card.title}
+                    <button class="edit-btn" onclick="editCard(${card.id}, '${card.title}', '${card.content}', '${card.date}')">수정</button>
+                    <button class="delete-btn" onclick="deleteCard(${card.id})">삭제</button>
+                </div>
                 <div class="card-content">${card.content}</div>
                 <div class="card-date">${card.date}</div>
             `;
@@ -142,6 +161,76 @@ document.addEventListener('DOMContentLoaded', () => {
                 .catch(error => {
                     console.error('카드 생성 실패:', error);
                     alert('카드 생성 실패');
+                });
+        }
+    };
+
+    window.editColumn = function(columnId, columnName) {
+        currentEditType = 'column';
+        currentEditId = columnId;
+        modalTitle.innerText = '컬럼 수정';
+        editTitle.value = columnName;
+        editContent.style.display = 'none';
+        editDate.style.display = 'none';
+        modal.style.display = 'block';
+    };
+
+    window.deleteColumn = function(columnId) {
+        if (confirm('정말 이 컬럼을 삭제하시겠습니까?')) {
+            fetch(`/api/boards/${boardId}/${columnId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode === 200) {
+                        location.reload(); // 페이지 새로고침
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('컬럼 삭제 실패:', error);
+                    alert('컬럼 삭제 실패');
+                });
+        }
+    };
+
+    window.editCard = function(cardId, cardTitle, cardContent, cardDate) {
+        currentEditType = 'card';
+        currentEditId = cardId;
+        modalTitle.innerText = '카드 수정';
+        editTitle.value = cardTitle;
+        editContent.value = cardContent;
+        editDate.value = cardDate;
+        editContent.style.display = 'block';
+        editDate.style.display = 'block';
+        modal.style.display = 'block';
+    };
+
+    window.deleteCard = function(cardId) {
+        if (confirm('정말 이 카드를 삭제하시겠습니까?')) {
+            fetch(`/api/card/${cardId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode === 200) {
+                        location.reload(); // 페이지 새로고침
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('카드 삭제 실패:', error);
+                    alert('카드 삭제 실패');
                 });
         }
     };
@@ -245,4 +334,65 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
         }
     }
+
+    span.onclick = function() {
+        modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modal) {
+            modal.style.display = "none";
+        }
+    }
+
+    saveEditBtn.addEventListener('click', () => {
+        if (currentEditType === 'column') {
+            const columnName = editTitle.value;
+            fetch(`/api/board/${currentEditId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                body: JSON.stringify({ columnName: columnName }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode === 200) {
+                        fetchColumns(boardId);
+                        modal.style.display = "none";
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('컬럼 수정 실패:', error);
+                    alert('컬럼 수정 실패');
+                });
+        } else if (currentEditType === 'card') {
+            const cardTitle = editTitle.value;
+            const cardContent = editContent.value;
+            const cardDate = editDate.value;
+            fetch(`/api/card/${currentEditId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
+                body: JSON.stringify({ title: cardTitle, content: cardContent, date: cardDate }),
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode === 200) {
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('카드 수정 실패:', error);
+                    alert('카드 수정 실패');
+                });
+        }
+    });
 });

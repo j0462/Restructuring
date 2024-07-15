@@ -75,34 +75,33 @@ public class CardController {
         }
     }
 
-    @PutMapping("/{id}")
+    // 카드 수정
+    @PutMapping("/{cardId}")
     public ResponseEntity<CommonResponse> updateCard(
-            @PathVariable Long id,
-            @Valid @RequestBody CardRequest cardRequest,
-            BindingResult bindingResult,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
+        @PathVariable Long cardId,
+        @RequestBody CardRequest request,
+        @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        if(bindingResult.hasErrors()){
-            return getFieldErrorResponseEntity(bindingResult, "카드 수정 실패");
-        }
         try{
-            CardResponse response = cardService.updateCard(id, cardRequest, userDetails.getUser());
+            CardResponse response = cardService.updateCard(cardId, request, userDetails.getUser());
             return getResponseEntity(response, "카드 수정 성공");
         } catch (Exception e) {
             return getBadRequestResponseEntity(e);
         }
     }
 
-    @DeleteMapping("/{id}")
+    // 카드 삭제
+    @DeleteMapping("/{cardId}")
     public ResponseEntity<CommonResponse> deleteCard(
-            @PathVariable Long id,
-            @AuthenticationPrincipal UserDetailsImpl userDetails
+        @PathVariable Long cardId,
+        @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         try{
-            Long response = cardService.deleteCard(id, userDetails.getUser());
+            Long response = cardService.deleteCard(cardId, userDetails.getUser());
             return getResponseEntity(response, "카드 삭제 성공");
         } catch (Exception e) {
             return getBadRequestResponseEntity(e);
         }
     }
 }
+

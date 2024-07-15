@@ -33,7 +33,7 @@ public class Card{
     @ManyToOne
     private Columns column;
 
-    @OneToMany(mappedBy = "card")
+    @OneToMany(mappedBy = "card", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments;
 
 
@@ -44,6 +44,18 @@ public class Card{
         this.date = date;
         this.user = user;
         this.column = column;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
     }
 }
 
