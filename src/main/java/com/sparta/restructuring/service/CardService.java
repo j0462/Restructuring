@@ -42,7 +42,7 @@ public class CardService {
 
     public List<CardResponse> getCardsByStatus(String status) {
         Columns column = columnRepository.findByColumnName(status);
-        List<Card> cards = cardRepository.findBycolumn(column);
+        List<Card> cards = cardRepository.findByColumn(column);
         List<CardResponse> responses = new ArrayList<>();
         for (Card card : cards) {
             CardResponse cardResponse = CardResponse.builder()
