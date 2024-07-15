@@ -19,7 +19,7 @@ import static com.sparta.restructuring.base.ControllerUtil.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/card/{cardId}/comments")
+@RequestMapping("/api/card/{cardId}/comments")
 public class CommentController {
 
     private final CommentService commentService;

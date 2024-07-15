@@ -1,6 +1,7 @@
 package com.sparta.restructuring.security;
 
 import java.io.IOException;
+import java.net.http.HttpResponse;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -8,11 +9,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sparta.restructuring.entity.User;
 import com.sparta.restructuring.entity.UserRole;
+import com.sparta.restructuring.repository.UserRepository;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -26,16 +30,27 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
 	private final JwtProvider jwtProvider;
 	private final UserDetailsServiceImpl userDetailsService;
+	private final UserRepository userRepository;
 
-	public JwtAuthorizationFilter(JwtProvider jwtProvider, UserDetailsServiceImpl userDetailsService) {
+	public JwtAuthorizationFilter(JwtProvider jwtProvider, UserDetailsServiceImpl userDetailsService, UserRepository userRepository) {
 		this.jwtProvider = jwtProvider;
 		this.userDetailsService = userDetailsService;
+		this.userRepository = userRepository;
 	}
 
 	@Override
 	protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
-		String accessToken = jwtProvider.getAccessTokenFromHeader(req);
-		String refreshToken = jwtProvider.getRefreshTokenFromRequest(req);
+		String accessToken = jwtProvider.getAccessTokenFromRequest(req);
+		String refreshToken = "";
+		User user = null;
+
+		if (accessToken != null) {
+			user = userRepository.findByAccountId(jwtProvider.getAccountIdFromToken(accessToken));
+		}
+
+		if (user != null) {
+			refreshToken = user.getRefreshToken();
+		}
 
 		if (StringUtils.hasText(accessToken)) {
 			if (jwtProvider.validateAccessToken(accessToken)) {
@@ -100,7 +115,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 	@AllArgsConstructor
 	public static class HttpResponse {
 		private int statusCode;
-		private String msg;
+		private String message;
 	}
 
 }

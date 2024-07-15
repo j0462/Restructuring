@@ -15,7 +15,7 @@ import java.util.List;
 
 import static com.sparta.restructuring.base.ControllerUtil.*;
 
-@RequestMapping("/board")
+@RequestMapping("/api/board")
 @RestController
 @AllArgsConstructor
 public class BoardController {

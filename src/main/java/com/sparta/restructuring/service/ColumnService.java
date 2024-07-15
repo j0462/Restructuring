@@ -1,6 +1,7 @@
 
 package com.sparta.restructuring.service;
 
+import com.sparta.restructuring.dto.CardResponse;
 import com.sparta.restructuring.dto.ColumnCreateRequestDto;
 import com.sparta.restructuring.dto.ColumnResponse;
 import com.sparta.restructuring.entity.Board;
@@ -139,5 +140,7 @@ public class ColumnService {
 
         return columnResponselist;
     }
+
+
 
 }

@@ -19,6 +19,7 @@ import com.sparta.restructuring.repository.UserRepository;
 import com.sparta.restructuring.security.JwtAuthenticationFilter;
 import com.sparta.restructuring.security.JwtAuthorizationFilter;
 import com.sparta.restructuring.security.JwtProvider;
+import com.sparta.restructuring.security.UserDetailsImpl;
 import com.sparta.restructuring.security.UserDetailsServiceImpl;
 
 import lombok.Getter;
@@ -33,6 +34,7 @@ public class WebSecurityConfig {
 	private final UserDetailsServiceImpl userDetailsService;
 	private final AuthenticationConfiguration authenticationConfiguration;
 	private final UserRepository userRepository;
+
 
 	@Bean
 	public PasswordEncoder passwordEncoder() {
@@ -53,7 +55,7 @@ public class WebSecurityConfig {
 
 	@Bean
 	public JwtAuthorizationFilter jwtAuthorizationFilter() {
-		return new JwtAuthorizationFilter(jwtProvider, userDetailsService);
+		return new JwtAuthorizationFilter(jwtProvider, userDetailsService, userRepository);
 	}
 
 	@Bean
@@ -70,6 +72,7 @@ public class WebSecurityConfig {
 			.requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
 			.requestMatchers(HttpMethod.POST, "/api/user/**").permitAll()
 			.requestMatchers("/v3/api-docs/**","/swagger-ui/**","/swagger-ui.html").permitAll()
+			.requestMatchers("/", "/signup").permitAll()
 			.anyRequest().authenticated()
 		);
 

@@ -19,7 +19,7 @@ import static com.sparta.restructuring.base.ControllerUtil.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/card")
+@RequestMapping("/api/card")
 public class CardController {
 
     private final CardService cardService;

@@ -1,5 +1,10 @@
 package com.sparta.restructuring.controller;
 
+import static com.sparta.restructuring.base.ControllerUtil.getBadRequestResponseEntity;
+import static com.sparta.restructuring.base.ControllerUtil.getResponseEntity;
+
+import java.util.List;
+
 import com.sparta.restructuring.base.BasicResponse;
 import com.sparta.restructuring.base.CommonResponse;
 import com.sparta.restructuring.dto.CardResponse;
@@ -20,7 +25,7 @@ import java.util.List;
 import static com.sparta.restructuring.base.ControllerUtil.*;
 
 
-@RequestMapping("/boards")
+@RequestMapping("/api/boards")
 @RestController
 @RequiredArgsConstructor
 public class ColumnController {
@@ -45,6 +50,8 @@ public class ColumnController {
             return getBadRequestResponseEntity(e);
         }
     }
+
+
 
     //컬럼 순서 변경
     @PatchMapping("/{columnId}/{order}")

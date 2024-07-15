@@ -27,10 +27,11 @@ public class JwtProvider {
 
 	public static final String BEARER_PREFIX = "Bearer ";
 	public static final String AUTHORIZATION_HEADER = "Authorization";
-	public static final String REFRESH_TOKEN_COOKIE_NAME = "RefreshToken";
+	public static final String ACCESS_TOKEN_COOKIE_NAME = "Authorization";
 	public static final String AUTHORIZATION_KEY = "auth";
 
 	private static final int REFRESH_TOKEN_TIME = 14 * 24 * 60 * 60 * 1000; // 2주
+	private static final int ACCESS_TOKEN_TIME = 60 * 60 * 1000; // 60분
 
 	@Value("${jwt.secret.key}")
 	private String secretKey;
@@ -78,17 +79,17 @@ public class JwtProvider {
 	}
 
 	/**
-	 * Cookie에 Refresh 토큰 저장
+	 * Cookie에 Access 토큰 저장
 	 */
 	public void addJwtToCookie(String token, HttpServletResponse response) {
 		String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8)
 			.replaceAll("\\+", "%20");
 
-		Cookie cookie = new Cookie(REFRESH_TOKEN_COOKIE_NAME, encodedToken);
+		Cookie cookie = new Cookie(ACCESS_TOKEN_COOKIE_NAME, encodedToken);
 		cookie.setHttpOnly(true);
 		//        cookie.setSecure(true);
 		cookie.setPath("/");
-		cookie.setMaxAge(REFRESH_TOKEN_TIME);
+		cookie.setMaxAge(ACCESS_TOKEN_TIME);
 
 		response.addCookie(cookie);
 	}
@@ -107,15 +108,15 @@ public class JwtProvider {
 	}
 
 	/**
-	 * HttpServletRequest에 들어있는 Cookie에서 Refresh 토큰 가져오기
+	 * HttpServletRequest에 들어있는 Cookie에서 Access 토큰 가져오기
 	 */
-	public String getRefreshTokenFromRequest(HttpServletRequest request) {
+	public String getAccessTokenFromRequest(HttpServletRequest request) {
 		Cookie[] cookies = request.getCookies();
 		if (cookies == null) {
 			return null;
 		}
 		for (Cookie cookie : cookies) {
-			if (cookie.getName().equals(REFRESH_TOKEN_COOKIE_NAME)) {
+			if (cookie.getName().equals(ACCESS_TOKEN_COOKIE_NAME)) {
 				return URLDecoder.decode(cookie.getValue(), StandardCharsets.UTF_8)
 					.substring(7);
 			}
@@ -134,6 +135,7 @@ public class JwtProvider {
 			log.error("유효하지 않는 JWT 서명 입니다.");
 		} catch (ExpiredJwtException e) {
 			log.error("만료된 JWT token 입니다.");
+			return true;
 		} catch (UnsupportedJwtException e) {
 			log.error("지원되지 않는 JWT 토큰 입니다.");
 		} catch (IllegalArgumentException e) {
@@ -166,8 +168,16 @@ public class JwtProvider {
 	 * 토큰에서 userName 가져오기
 	 */
 	public String getAccountIdFromToken(String token) {
-		return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+		try {
+			return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody().getSubject();
+		} catch (ExpiredJwtException e) {
+			return e.getClaims().getSubject();
+		} catch (Exception e) {
+			log.error("토큰에서 userName을 가져오는 중 오류가 발생했습니다.", e);
+			return null;
+		}
 	}
+
 
 	/**
 	 * 토큰에서 role 가져오기

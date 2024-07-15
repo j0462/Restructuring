@@ -73,9 +73,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
 		// 헤더에 액세스 토큰 추가
 		res.addHeader(JwtProvider.AUTHORIZATION_HEADER, accessToken);
-
-		// 쿠키에 리프레시 토큰 추가
-		jwtProvider.addJwtToCookie(refreshToken, res);
+		jwtProvider.addJwtToCookie(accessToken, res);
 
 		// DB에 리프레시 토큰이 이미 있으면 수정, 없으면 저장
 		User user = ((UserDetailsImpl) authResult.getPrincipal()).getUser();
@@ -124,7 +122,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 	private static class ApiResponse {
 
 		private int statusCode;
-		private String msg;
+		private String message;
 		private String accessToken;
 		private String refreshToken;
 
