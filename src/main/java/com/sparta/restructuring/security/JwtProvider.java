@@ -59,7 +59,7 @@ public class JwtProvider {
 		Date date = new Date();
 
 		// Access 토큰 만료기간
-		long accessTokenTime = 10 * 1000L; // 10초
+		long accessTokenTime = 5 * 1000L; // 10초
 
 		return BEARER_PREFIX + Jwts.builder()
 			.setSubject(accountId)
