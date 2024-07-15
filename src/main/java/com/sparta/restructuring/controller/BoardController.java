@@ -33,6 +33,19 @@ public class BoardController {
         }
     }
 
+    //보드 단건 조회
+    @GetMapping("/{boardId}")
+    public ResponseEntity<CommonResponse> getBoard(
+            @PathVariable int boardId
+    ) {
+        try{
+            BoardResponse response = boardService.getBoardOne(boardId);
+            return getResponseEntity(response, "보드 단건 조회 성공");
+        } catch (Exception e) {
+            return getBadRequestResponseEntity(e);
+        }
+    }
+
     // 보드 생성
     @PostMapping
     public ResponseEntity<CommonResponse> postBoard(

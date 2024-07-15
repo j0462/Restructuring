@@ -45,6 +45,16 @@ public class BoardService {
                 .collect(Collectors.toList());
     }
 
+    // 보드 단건 조회
+    public BoardResponse getBoardOne(long boardId) {
+        Optional<Board> boardOptional = boardRepository.findById(boardId);
+        if(boardOptional.isEmpty()){
+            throw new IllegalArgumentException("Card를 찾을 수 없습니다");
+        }
+        Board board = boardOptional.get();
+        return new BoardResponse(board);
+    }
+
     // 보드 생성
     @Transactional
     public BoardResponse createBoard(BoardRequest request, User user) {
