@@ -141,18 +141,44 @@ document.addEventListener('DOMContentLoaded', () => {
             const cardElement = document.createElement('div');
             cardElement.classList.add('card');
             cardElement.innerHTML = `
-                <div class="card-title">${card.title}</div>
-                <div class="card-content">${card.content}</div>
-                <div class="card-date">${card.date}</div>
-                <button class="edit-btn" onclick="editCard(${card.id}, '${card.title}', '${card.content}', '${card.date}')">수정</button>
-                <button class="delete-btn" onclick="deleteCard(${card.id})">삭제</button>
-            `;
-            cardElement.addEventListener('click', () => openCardDetailModal(card));
+            <div class="card-title">${card.title}</div>
+            <div class="card-content">${card.content}</div>
+            <div class="card-date">${card.date}</div>
+            <button class="edit-btn" onclick="editCard(${card.id}, '${card.title}', '${card.content}', '${card.date}')">수정</button>
+            <button class="delete-btn" onclick="deleteCard(${card.id})">삭제</button>
+        `;
+            cardElement.addEventListener('click', (event) => {
+                if (!event.target.classList.contains('edit-btn') && !event.target.classList.contains('delete-btn')) {
+                    openCardDetailModal(card.id, card.title, card.content, card.date);
+                }
+            });
             cardsContainer.appendChild(cardElement);
         });
     }
 
-    window.addCard = function (columnId, columnName) {
+    window.openCardDetailModal = function(cardId, cardTitle, cardContent, cardDate) {
+        currentCardId = cardId;
+        cardDetailTitle.innerText = cardTitle;
+        cardDetailContent.innerText = cardContent;
+        cardDetailDate.innerText = `마감일: ${cardDate}`;
+        fetchCardComments(cardId);
+        cardDetailModal.style.display = "block";
+    };
+
+// 카드 상세 모달 닫기
+    closeCardDetailBtn.onclick = function() {
+        cardDetailModal.style.display = "none";
+    };
+
+// 카드 상세 모달 외부 클릭 시 닫기
+    window.onclick = function(event) {
+        if (event.target == cardDetailModal) {
+            cardDetailModal.style.display = "none";
+        }
+    };
+
+
+    window.addCard = function(columnId, columnName) {
         const cardTitle = prompt('카드 제목:');
         const cardContent = prompt('카드 내용:');
         const cardDate = prompt('카드 마감일 (YYYY-MM-DD):');
@@ -163,12 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 },
-                body: JSON.stringify({
-                    title: cardTitle,
-                    content: cardContent,
-                    date: cardDate,
-                    columnStatus: columnName
-                }),
+                body: JSON.stringify({ title: cardTitle, content: cardContent, date: cardDate, columnStatus: columnName }),
             })
                 .then(response => response.json())
                 .then(data => {
@@ -185,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    window.editColumn = function (columnId, columnName) {
+    window.editColumn = function(columnId, columnName) {
         currentEditType = 'column';
         currentEditId = columnId;
         modalTitle.innerText = '컬럼 수정';
@@ -195,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'block';
     };
 
-    window.deleteColumn = function (columnId) {
+    window.deleteColumn = function(columnId) {
         if (confirm('정말 이 컬럼을 삭제하시겠습니까?')) {
             fetch(`/api/boards/${boardId}/${columnId}`, {
                 method: 'DELETE',
@@ -219,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    window.editCard = function (cardId, cardTitle, cardContent, cardDate) {
+    window.editCard = function(cardId, cardTitle, cardContent, cardDate) {
         currentEditType = 'card';
         currentEditId = cardId;
         modalTitle.innerText = '카드 수정';
@@ -231,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modal.style.display = 'block';
     };
 
-    window.deleteCard = function (cardId) {
+    window.deleteCard = function(cardId) {
         if (confirm('정말 이 카드를 삭제하시겠습니까?')) {
             fetch(`/api/card/${cardId}`, {
                 method: 'DELETE',
@@ -265,7 +286,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 },
-                body: JSON.stringify({columnName: columnName, boardId: boardId}),
+                body: JSON.stringify({ columnName: columnName, boardId: boardId }),
             })
                 .then(response => response.json())
                 .then(data => {
@@ -355,11 +376,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    span.onclick = function () {
+    span.onclick = function() {
         modal.style.display = "none";
     }
 
-    window.onclick = function (event) {
+    window.onclick = function(event) {
         if (event.target == modal) {
             modal.style.display = "none";
         }
@@ -374,7 +395,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 },
-                body: JSON.stringify({columnName: columnName}),
+                body: JSON.stringify({ columnName: columnName }),
             })
                 .then(response => response.json())
                 .then(data => {
@@ -399,7 +420,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 },
-                body: JSON.stringify({title: cardTitle, content: cardContent, date: cardDate}),
+                body: JSON.stringify({ title: cardTitle, content: cardContent, date: cardDate }),
             })
                 .then(response => response.json())
                 .then(data => {
@@ -418,22 +439,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // 카드 상세 모달 열기
-    function openCardDetailModal(card) {
-        currentCardId = card.id;
-        cardDetailTitle.innerText = card.title;
-        cardDetailContent.innerText = card.content;
-        cardDetailDate.innerText = `마감일: ${card.date}`;
-        fetchCardComments(card.id);
+    window.openCardDetailModal = function(cardId, cardTitle, cardContent, cardDate) {
+        currentCardId = cardId;
+        cardDetailTitle.innerText = cardTitle;
+        cardDetailContent.innerText = cardContent;
+        cardDetailDate.innerText = `마감일: ${cardDate}`;
+        fetchCardComments(cardId);
         cardDetailModal.style.display = "block";
-    }
+    };
 
     // 카드 상세 모달 닫기
-    closeCardDetailBtn.onclick = function () {
+    closeCardDetailBtn.onclick = function() {
         cardDetailModal.style.display = "none";
     };
 
     // 카드 상세 모달 외부 클릭 시 닫기
-    window.onclick = function (event) {
+    window.onclick = function(event) {
         if (event.target == cardDetailModal) {
             cardDetailModal.style.display = "none";
         }
@@ -449,7 +470,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
                 },
-                body: JSON.stringify({content: content}),
+                body: JSON.stringify({ content: content }),
             })
                 .then(response => response.json())
                 .then(data => {
@@ -502,16 +523,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 사용자 초대 모달 열기
-    inviteUserBtn.onclick = function () {
+    inviteUserBtn.onclick = function() {
         inviteModal.style.display = "block";
     };
 
     // 사용자 초대 모달 닫기
-    closeInviteBtn.onclick = function () {
+    closeInviteBtn.onclick = function() {
         inviteModal.style.display = "none";
     };
 
-    // 사용자 초대
     // 사용자 초대
     sendInviteBtn.addEventListener('click', () => {
         const userId = inviteUsernameInput.value; // 사용자 ID를 직접 입력받는다고 가정합니다.
@@ -538,7 +558,5 @@ document.addEventListener('DOMContentLoaded', () => {
                     alert('사용자 초대 실패');
                 });
         }
-
-
     });
 });
