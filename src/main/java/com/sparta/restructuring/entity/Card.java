@@ -45,5 +45,17 @@ public class Card{
         this.user = user;
         this.column = column;
     }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setContent(String content) {
+        this.content = content;
+    }
+
+    public void setDate(LocalDate date) {
+        this.date = date;
+    }
 }
 

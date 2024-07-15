@@ -62,7 +62,7 @@ public class ColumnController {
     }
 
     //컬럼 삭제
-    @DeleteMapping("/{boardId}{columnId}")
+    @DeleteMapping("/{boardId}/{columnId}")
     public ResponseEntity<CommonResponse> deleteColumn(
             @PathVariable Long columnId,
             @PathVariable Long boardId,
