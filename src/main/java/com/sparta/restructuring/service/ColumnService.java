@@ -44,14 +44,18 @@ public class ColumnService {
         }
 
         Long columnOrder = columnRepository.countByColumnId(boardId);
-        Columns columns = Columns.builder().board(board).columnName(requestDto.getColumnName())
+        Columns columns = Columns.builder().board(board).columnName(requestDto.getColumnName()).status(requestDto.getStatus())
                 .order(columnOrder +1).build();
         columnRepository.save(columns);
     }
 
 
     @Transactional
-    public void deleteColumn(Long columnId, User loginUser) {
+    public void deleteColumn(Long columnId, Long boardId, User loginUser) {
+        Optional<UserBoard> userBoard = userBoardRepository.findByIdAndUserId(boardId, loginUser.getId());
+        if (userBoard.isEmpty()) {
+            throw new ColumnDuplicatedException(ColumnErrorCode.NOT_INVITED_USER);
+        }
 
         Columns columns = columnRepository.findById(columnId)
                 .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
@@ -71,16 +75,21 @@ public class ColumnService {
                 .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
 
         Long boardId = columns.getBoard().getBoardId();
-        Long maxOrder = columnRepository.countByColumnId(boardId) - 1;
+        /*Long maxOrder = columnRepository.countByColumnId(boardId) - 1;*/
 
-        if (newOrder < 0 || newOrder > maxOrder) {
+        Optional<UserBoard> userBoard = userBoardRepository.findByIdAndUserId(boardId, loginUser.getId());
+        if (userBoard.isEmpty()) {
+            throw new ColumnDuplicatedException(ColumnErrorCode.NOT_INVITED_USER);
+        }
+
+        if (newOrder < 0 ) {
             throw new InvalidOrderException(ColumnErrorCode.INVALID_ORDER);
         }
 
         if (Objects.equals(columns.getColumnOrder(), newOrder)) {
             throw new InvalidOrderException(ColumnErrorCode.INVALID_ORDER);
         } else if (columns.getColumnOrder() > newOrder) {
-            List<Columns> columnsList = columnRepository.findAllByColumnIdAndColumnOrderBetween(
+            List<Columns> columnsList = columnRepository.findAllByBoardBoardIdAndColumnOrderBetween(
                     boardId, newOrder, columns.getColumnOrder());
             for (Columns column : columnsList) {
                 if (Objects.equals(column.getColumnId(), columns.getColumnId())) {
@@ -90,7 +99,7 @@ public class ColumnService {
                 column.setColumnOrder(column.getColumnOrder() + 1);
             }
         } else {
-            List<Columns> columnsList = columnRepository.findAllByColumnIdAndColumnOrderBetween(
+            List<Columns> columnsList = columnRepository.findAllByBoardBoardIdAndColumnOrderBetween(
                     boardId, columns.getColumnOrder(), newOrder);
             for (Columns column : columnsList) {
                 if (column.equals(columns)) {
