@@ -45,7 +45,7 @@ public class Board {
         this.boardExplain = boardExplain;
     }
 
-    public void setInvitedUsers(List<UserBoard> invitedUsers){
+    public void setInvitedUsers(List<UserBoard> invitedUsers) {
         this.userBoardList = invitedUsers;
     }
 
