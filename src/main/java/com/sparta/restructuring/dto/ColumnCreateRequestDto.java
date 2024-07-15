@@ -6,8 +6,7 @@ import lombok.Setter;
 @Setter//test
 @Getter
 public class ColumnCreateRequestDto {
-
-
     private String columnName;
-    private Long ColumnOrder;
+    private Long columnOrder;
+    private String status;
 }

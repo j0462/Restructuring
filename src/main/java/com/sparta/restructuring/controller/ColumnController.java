@@ -37,10 +37,10 @@ public class ColumnController {
     }
 
     //컬럼 삭제
-    @DeleteMapping("/{columnId}")
-    public ResponseEntity<BasicResponse<Void>> deleteColumn(@PathVariable Long columnId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    @DeleteMapping("/{boardId}{columnId}")
+    public ResponseEntity<BasicResponse<Void>> deleteColumn(@PathVariable Long columnId, @PathVariable Long boardId, @AuthenticationPrincipal UserDetailsImpl userDetails) {
 
-        columnService.deleteColumn(columnId, userDetails.getUser());
+        columnService.deleteColumn(columnId, boardId, userDetails.getUser());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(BasicResponse.of("컬럼 삭제 완료"));
     }
