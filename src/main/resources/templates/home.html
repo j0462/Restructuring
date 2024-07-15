@@ -10,6 +10,7 @@
 <body>
 <header>
     <h1 id="board-title">보드 이름</h1>
+    <button id="invite-user-btn" class="invite-user-btn">사용자 초대하기</button>
 </header>
 <main>
     <div id="columns-container" class="columns-container"></div>
@@ -39,6 +40,16 @@
         <textarea id="new-card-comment" placeholder="댓글을 입력하세요"></textarea>
         <button id="add-card-comment-btn">댓글 추가</button>
         <div id="card-comments-container"></div>
+    </div>
+</div>
+
+<!-- Invite User Modal -->
+<div id="invite-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-invite">&times;</span>
+        <h2>사용자 초대</h2>
+        <input type="text" id="invite-username" placeholder="사용자 ID">
+        <button id="send-invite-btn">초대</button>
     </div>
 </div>
 

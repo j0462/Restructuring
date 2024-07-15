@@ -15,6 +15,13 @@ header {
     color: white;
     padding: 10px 0;
     text-align: center;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+header button {
+    margin-right: 20px;
 }
 
 main {
@@ -80,7 +87,7 @@ main {
     color: #6b778c;
 }
 
-.add-card-btn, .add-column-btn {
+.add-card-btn, .add-column-btn, .invite-user-btn {
     background-color: #5aac44;
     color: white;
     border: none;
@@ -91,7 +98,7 @@ main {
     align-self: flex-start;
 }
 
-.add-card-btn:hover, .add-column-btn:hover {
+.add-card-btn:hover, .add-column-btn:hover, .invite-user-btn:hover {
     background-color: #61bd4f;
 }
 
