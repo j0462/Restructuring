@@ -12,7 +12,9 @@ public interface ColumnRepository extends JpaRepository<Columns, Long> {
 
     Optional<Columns> findByColumnIdAndColumnName(Long boardId, String columnName);
 
-    List<Columns> findAllByColumnIdAndColumnOrderBetween(Long boardId, Long newOrder, Long columnOrder);
+    List<Columns> findAllByBoardBoardIdAndColumnOrderBetween(Long boardId, Long newOrder, Long columnOrder);
+
+
 
     List<Columns> findAllByColumnIdAndColumnOrderGreaterThan(Long id, Long columnOrder);
 
