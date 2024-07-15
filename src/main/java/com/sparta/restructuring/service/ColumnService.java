@@ -78,48 +78,29 @@ public class ColumnService {
 
     @Transactional
     public ColumnResponse modifyColumnOrder(Long columnId, Long newOrder, User loginUser) {
-
         Columns columns = columnRepository.findById(columnId)
-                .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
+            .orElseThrow(() -> new ColumnNotFoundException(ColumnErrorCode.COLUMN_NOT_FOUND));
 
         Long boardId = columns.getBoard().getBoardId();
-        /*Long maxOrder = columnRepository.countByColumnId(boardId) - 1;*/
-
         Board existboard = boardRepository.findById(boardId).orElse(null);
         Optional<UserBoard> userBoard = userBoardRepository.findByBoardAndUser(existboard, loginUser);
         if (userBoard.isEmpty()) {
             throw new ColumnDuplicatedException(ColumnErrorCode.NOT_INVITED_USER);
         }
 
-        if (newOrder < 0 ) {
+        if (newOrder < 0) {
             throw new InvalidOrderException(ColumnErrorCode.INVALID_ORDER);
         }
 
         if (Objects.equals(columns.getColumnOrder(), newOrder)) {
             throw new InvalidOrderException(ColumnErrorCode.INVALID_ORDER);
-        } else if (columns.getColumnOrder() > newOrder) {
-            List<Columns> columnsList = columnRepository.findAllByBoardBoardIdAndColumnOrderBetween(
-                    boardId, newOrder, columns.getColumnOrder());
-            for (Columns column : columnsList) {
-                if (Objects.equals(column.getColumnId(), columns.getColumnId())) {
-                    columns.setColumnOrder(newOrder);
-                    continue;
-                }
-                column.setColumnOrder(column.getColumnOrder() + 1);
-            }
-        } else {
-            List<Columns> columnsList = columnRepository.findAllByBoardBoardIdAndColumnOrderBetween(
-                    boardId, columns.getColumnOrder(), newOrder);
-            for (Columns column : columnsList) {
-                if (column.equals(columns)) {
-                    columns.setColumnOrder(newOrder);
-                    continue;
-                }
-                column.setColumnOrder(column.getColumnOrder() - 1);
-            }
         }
 
+        // 잠금 순서 조정
+        columnRepository.updateColumnOrder(boardId, columns.getColumnOrder(), newOrder);
+        columns.setColumnOrder(newOrder);
         columnRepository.save(columns);
+
         return new ColumnResponse(columns.getColumnId(), columns.getColumnName(), columns.getColumnOrder(), boardId);
     }
 

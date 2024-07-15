@@ -58,11 +58,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function displayColumns(columns) {
         columnsContainer.innerHTML = '';
+        columns.sort((a, b) => a.columnOrder - b.columnOrder); // Sort columns by order
         columns.forEach(column => {
             const columnElement = document.createElement('div');
             columnElement.classList.add('column');
             columnElement.setAttribute('draggable', true);
             columnElement.dataset.columnId = column.columnId;
+            columnElement.dataset.columnOrder = column.columnOrder;
             columnElement.innerHTML = `
                 <div class="column-title">${column.columnName}</div>
                 <div class="cards" id="cards-${column.columnName}"></div>
@@ -219,22 +221,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function updateColumnOrder(columnId, newOrder) {
-        fetch(`/api/boards/${columnId}/${newOrder}`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
-            },
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.statusCode !== 200) {
-                    alert(data.message);
-                }
+        const currentOrder = parseInt(document.querySelector(`[data-column-id="${columnId}"]`).dataset.columnOrder, 10);
+        if (currentOrder !== newOrder) {
+            fetch(`/api/boards/${columnId}/${newOrder}`, {
+                method: 'PATCH',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${localStorage.getItem('accessToken')}`
+                },
             })
-            .catch(error => {
-                console.error('컬럼 순서 변경 실패:', error);
-                alert('컬럼 순서 변경 실패');
-            });
+                .then(response => response.json())
+                .then(data => {
+                    if (data.statusCode !== 200) {
+                        alert(data.message);
+                    } else {
+                        // 업데이트 성공 후 데이터셋의 columnOrder를 업데이트
+                        document.querySelector(`[data-column-id="${columnId}"]`).dataset.columnOrder = newOrder;
+                    }
+                })
+                .catch(error => {
+                    console.error('컬럼 순서 변경 실패:', error);
+                    alert('컬럼 순서 변경 실패');
+                });
+        }
     }
 });
