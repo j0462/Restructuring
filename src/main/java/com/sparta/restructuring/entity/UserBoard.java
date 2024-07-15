@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor()
 public class UserBoard {
 
 	@Id
@@ -27,4 +27,8 @@ public class UserBoard {
 	@JoinColumn(name = "board_id")
 	private Board board;
 
+	public UserBoard(User user, Board board){
+		this.user = user;
+		this.board = board;
+	}
 }

@@ -36,10 +36,11 @@ public class BoardController {
     // 보드 생성
     @PostMapping
     public ResponseEntity<CommonResponse> postBoard(
-            @RequestBody BoardRequest request
+            @RequestBody BoardRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         try{
-            BoardResponse response =  boardService.createBoard(request);
+            BoardResponse response =  boardService.createBoard(request,userDetails.getUser());
             return getResponseEntity(response, "보드 생성 성공");
         } catch (Exception e) {
             return getBadRequestResponseEntity(e);
@@ -50,10 +51,11 @@ public class BoardController {
     @PutMapping("/{boardId}")
     public ResponseEntity<CommonResponse> putBoard(
             @PathVariable Long boardId,
-            @RequestBody BoardRequest request
+            @RequestBody BoardRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         try{
-            BoardResponse response = boardService.updateBoard(boardId, request);
+            BoardResponse response = boardService.updateBoard(boardId, request, userDetails.getUser());
             return getResponseEntity(response, "보드 수정 성공");
         } catch (Exception e) {
             return getBadRequestResponseEntity(e);
@@ -64,10 +66,11 @@ public class BoardController {
     @DeleteMapping("/{boardId}")
     public ResponseEntity<CommonResponse> deleteBoard(
             @PathVariable Long boardId,
-            @RequestBody BoardRequest request
+            @RequestBody BoardRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         try{
-            Long response = boardService.deleteBoard(boardId, request.getBoardName());
+            Long response = boardService.deleteBoard(boardId, request.getBoardName(), userDetails.getUser());
             return getResponseEntity(response, "보드 삭제 성공");
         } catch (Exception e) {
             return getBadRequestResponseEntity(e);
@@ -78,7 +81,8 @@ public class BoardController {
     @PostMapping("/{boardId}/invite")
     public ResponseEntity<CommonResponse> inviteUserToBoard(
             @PathVariable Long boardId,
-            @RequestBody BoardRequest request
+            @RequestBody BoardRequest request,
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
         try{
             BoardResponse response = boardService.inviteUserToBoard(boardId, request.getInvitedUsers());

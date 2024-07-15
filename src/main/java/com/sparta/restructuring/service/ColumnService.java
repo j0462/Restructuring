@@ -1,5 +1,6 @@
 package com.sparta.restructuring.service;
 
+import com.sparta.restructuring.dto.BoardResponse;
 import com.sparta.restructuring.dto.ColumnCreateRequestDto;
 import com.sparta.restructuring.entity.Board;
 import com.sparta.restructuring.entity.Columns;
@@ -31,7 +32,8 @@ public class ColumnService {
     private final UserBoardRepository userBoardRepository;
 
     public void createColumn(ColumnCreateRequestDto requestDto, Long boardId, User loginUser) {
-        Optional<UserBoard> userBoard = userBoardRepository.findByIdAndUserId(boardId, loginUser.getId());
+        Optional<Board> existboard = boardRepository.findById(boardId);
+        Optional<UserBoard> userBoard = userBoardRepository.findByBoardAndUser(existboard.get(), loginUser);
         if (userBoard.isEmpty()) {
             throw new ColumnDuplicatedException(ColumnErrorCode.NOT_INVITED_USER);
         }

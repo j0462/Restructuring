@@ -40,33 +40,39 @@ public class BoardService {
     }
 
     @Transactional
-    public BoardResponse createBoard(BoardRequest request) {
+    public BoardResponse createBoard(BoardRequest request, User user) {
         validateBoardRequest(request);
         Board newBoard = request.toEntity();
+        UserBoard userBoard = new UserBoard(user, newBoard);
         boardRepository.save(newBoard);
+        userBoardRepository.save(userBoard);
         return new BoardResponse(newBoard);
     }
 
     @Transactional
-    public BoardResponse updateBoard(Long boardId, BoardRequest request) {
+    public BoardResponse updateBoard(Long boardId, BoardRequest request, User user) {
         Board board = getBoardById(boardId);
         validateBoardRequest(request);
 
         board.setBoardName(request.getBoardName());
         board.setBoardExplain(request.getBoardExplain());
+        UserBoard userBoard = new UserBoard(user, board);
         boardRepository.save(board);
+        userBoardRepository.save(userBoard);
         return new BoardResponse(board);
     }
 
     @Transactional
-    public Long deleteBoard(Long boardId, String boardName) {
+    public Long deleteBoard(Long boardId, String boardName, User user) {
         Board board = getBoardById(boardId);
 
         if (!board.getBoardName().equals(boardName)) {
             throw new IllegalArgumentException("삭제하려는 보드 이름과 일치하지 않습니다.");
         }
 
+        UserBoard userBoard = new UserBoard(user, board);
         boardRepository.delete(board);
+        userBoardRepository.delete(userBoard);
         return board.getBoardId();
     }
 
